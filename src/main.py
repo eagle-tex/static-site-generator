@@ -8,17 +8,17 @@ def main():
     print(text_node)
 
     html_node1 = HTMLNode(
-        "a",
+        "div",
         "My link",
         children=[
-            HTMLNode("a1", "Google"),
+            HTMLNode("h2", "Google"),
             HTMLNode(
-                "a2",
+                "div",
                 "Netflix",
                 children=[
                     HTMLNode(
-                        "a21",
-                        "What's next?",
+                        "img",
+                        None,
                         children=None,
                         props={"src": "image source", "alt": "a picture"},
                     )
@@ -36,7 +36,7 @@ def main():
     print()
 
     html_node2 = HTMLNode(
-        "b",
+        "a",
         "My link",
         children=None,
         props={
