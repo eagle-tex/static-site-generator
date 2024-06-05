@@ -65,13 +65,6 @@ def get_node_info(html_node):
         props_msg = f"Props: {html_node.props}"
         return delimiter, title, tag_msg, value_msg, props_msg
     raise Exception("get_node_info argument must be of type HTMLNode")
-    # return (
-    #     "G",
-    #     "G",
-    #     "G",
-    #     "G",
-    #     "G",
-    # )
 
 
 def pad_str(str, level=1):
