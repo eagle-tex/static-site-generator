@@ -1,6 +1,7 @@
 from leafnode import LeafNode
 from parentnode import ParentNode
-from textnode import TextNode, split_nodes_delimiter
+from textnode import TextNode
+from inline import split_nodes_delimiter
 from htmlnode import HTMLNode
 
 
