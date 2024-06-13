@@ -1,7 +1,11 @@
 import unittest
 
 from textnode import TextNode
-from inline import split_nodes_delimiter
+from inline import (
+    extract_markdown_images,
+    extract_markdown_links,
+    split_nodes_delimiter,
+)
 
 
 class TestSplitNodesDelimiter(unittest.TestCase):
@@ -66,6 +70,32 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         node6 = TextNode("A text with only one `backtick is not parsable", "text")
         with self.assertRaises(Exception):
             split_nodes_delimiter([node6], "`", "code")
+
+
+class TestExtractMarkdownImages(unittest.TestCase):
+    def test_extract_markdown_img(self):
+        text = "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and ![another](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png)"
+        expected = [
+            (
+                "image",
+                "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png",
+            ),
+            (
+                "another",
+                "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/dfsdkjfd.png",
+            ),
+        ]
+        self.assertEqual(len(extract_markdown_images(text)), 2)
+        self.assertEqual(extract_markdown_images(text), expected)
+
+    def test_extract_markdown_links(self):
+        text = "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)"
+        expected = [
+            ("link", "https://www.example.com"),
+            ("another", "https://www.example.com/another"),
+        ]
+        self.assertEqual(len(extract_markdown_links(text)), 2)
+        self.assertEqual(extract_markdown_links(text), expected)
 
 
 if __name__ == "__main__":
