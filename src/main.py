@@ -6,6 +6,7 @@ from inline import (
     extract_markdown_links,
     split_nodes_delimiter,
     split_nodes_image,
+    split_nodes_link,
 )
 from htmlnode import HTMLNode
 
@@ -201,9 +202,29 @@ def play_with_split_nodes_image():
     #     " and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
     #     "text",
     # )
-    new_nodes = split_nodes_image([node1, node2, node3, node4])
+    # new_nodes = split_nodes_image([node1, node2, node3, node4])
+    new_nodes = split_nodes_image([node3])
     print(f"{len(new_nodes)} nodes returned")
     for n in new_nodes:
+        print(n)
+
+
+def play_with_split_nodes_link():
+    node1 = TextNode(
+        "This is text with a [first link](https://www.example.com) and [another](https://www.example.com/another)",
+        "text",
+    )
+    node2 = TextNode(
+        "This is text with only [one link](https://www.example.com)",
+        "text",
+    )
+    node3 = TextNode(
+        "[only the link](https://www.example.com)",
+        "text",
+    )
+    new_nodes1 = split_nodes_link([node3])
+    print(f"{len(new_nodes1)} link node(s) came through!")
+    for n in new_nodes1:
         print(n)
 
 
@@ -218,7 +239,9 @@ def main():
     # print()
     # play_with_extract_md_links()
     # print()
-    play_with_split_nodes_image()
+    # play_with_split_nodes_image()
+    # print()
+    play_with_split_nodes_link()
 
 
 main()
