@@ -54,22 +54,6 @@ def split_nodes_delimiter(
 
         return new_nodes
 
-    # def text_to_textnode(input_text: str):
-    #     output = ""
-    #     if not isinstance(input_text, str):
-    #         raise ValueError("The input of 'text_to_text_node' must be a string")
-    #
-    #     if input_text.startswith("**") and input_text.endswith("**"):
-    #         output = TextNode(input_text, "bold")
-    #     elif input_text.startswith("*") and input_text.endswith("*"):
-    #         output = TextNode(input_text, "italic")
-    #     elif input_text.startswith("`") and input_text.endswith("`"):
-    #         output = TextNode(input_text, "code")
-    #     else:
-    #         output = TextNode(input_text, "text")
-    #
-    #     return output
-
     return parse_nodes(old_nodes)
 
 
