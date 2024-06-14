@@ -7,6 +7,7 @@ from inline import (
     split_nodes_delimiter,
     split_nodes_image,
     split_nodes_link,
+    text_to_textnodes,
 )
 
 
@@ -267,6 +268,67 @@ class TestSplitNodesLink(unittest.TestCase):
             expected_many[3],
             TextNode("another", "link", "https://www.example.com/another"),
         )
+
+
+class TestTextToTextNodes(unittest.TestCase):
+    def test_empty_string(self):
+        result = text_to_textnodes("")
+        self.assertEqual(result, [])
+
+    def test_plain_text(self):
+        result = text_to_textnodes("Just a plain text")
+        expected = [TextNode("Just a plain text", "text")]
+        self.assertEqual(result, expected)
+
+    def test_multiple_images(self):
+        result = text_to_textnodes(
+            "![image1](url1)![image2](url2)[link1](url3)[link2](url4)"
+        )
+        expected = [
+            TextNode("image1", "image", "url1"),
+            TextNode("image2", "image", "url2"),
+            TextNode("link1", "link", "url3"),
+            TextNode("link2", "link", "url4"),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_only_special_formatting(self):
+        result = text_to_textnodes("**bold** and *italic*")
+        expected = [
+            TextNode("bold", "bold"),
+            TextNode(" and ", "text"),
+            TextNode("italic", "italic"),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_txt_to_text_nodes_many(self):
+        text_type_bold = "bold"
+        text_type_code = "code"
+        text_type_image = "image"
+        text_type_italic = "italic"
+        text_type_link = "link"
+        text_type_text = "text"
+
+        text = "This is **text** with an *italic* word and a `code block` and an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and a [link](https://boot.dev)"
+        expected = [
+            TextNode("This is ", text_type_text),
+            TextNode("text", text_type_bold),
+            TextNode(" with an ", text_type_text),
+            TextNode("italic", text_type_italic),
+            TextNode(" word and a ", text_type_text),
+            TextNode("code block", text_type_code),
+            TextNode(" and an ", text_type_text),
+            TextNode(
+                "image",
+                text_type_image,
+                "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png",
+            ),
+            TextNode(" and a ", text_type_text),
+            TextNode("link", text_type_link, "https://boot.dev"),
+        ]
+        result = text_to_textnodes(text)
+        self.assertEqual(len(result), 10)
+        self.assertEqual(result, expected)
 
 
 if __name__ == "__main__":
