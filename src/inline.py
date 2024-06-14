@@ -166,3 +166,20 @@ def split_nodes_link(old_nodes: List[TextNode]) -> List[TextNode]:
                         new_nodes.extend(split_nodes_link([TextNode(split, "text")]))
 
     return new_nodes
+
+
+def text_to_textnodes(text: str) -> List[TextNode]:
+    new_nodes = []
+    # transform the input (text) into a TextNode of type "text"
+    initial_text_node = TextNode(text, "text")
+    # start splitting the delimiter "bold" before the others, especially before
+    # "italic" to avoid considering "**" (bold) as 2 times "*" (italic)
+    new_nodes = split_nodes_delimiter([initial_text_node], "**", "bold")
+    # split with delimiter "*", then "`"
+    for delimiter, text_type in [("*", "italic"), ("`", "code")]:
+        new_nodes = split_nodes_delimiter(new_nodes, delimiter, text_type)
+    # split by images
+    new_nodes = split_nodes_image(new_nodes)
+    # split by links
+    new_nodes = split_nodes_link(new_nodes)
+    return new_nodes
