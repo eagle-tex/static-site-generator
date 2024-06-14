@@ -111,17 +111,13 @@ class TestSplitNodeImage(unittest.TestCase):
             TextNode(
                 "first image",
                 "image",
-                {
-                    "url": "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"
-                },
+                "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png",
             ),
             TextNode(" and another ", "text"),
             TextNode(
                 "second image",
                 "image",
-                {
-                    "url": "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png"
-                },
+                "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png",
             ),
         ]
         self.assertEqual(len(split_nodes_image([node1])), 4)
@@ -136,17 +132,13 @@ class TestSplitNodeImage(unittest.TestCase):
             TextNode(
                 "third image",
                 "image",
-                {
-                    "url": "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3idvOCJ.png"
-                },
+                "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3idvOCJ.png",
             ),
             TextNode(" and another ", "text"),
             TextNode(
                 "fourth image",
                 "image",
-                {
-                    "url": "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/4unPdYb.png"
-                },
+                "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/4unPdYb.png",
             ),
         ]
         self.assertEqual(len(split_nodes_image([node2])), 3)
@@ -161,9 +153,7 @@ class TestSplitNodeImage(unittest.TestCase):
             TextNode(
                 "fifth image",
                 "image",
-                {
-                    "url": "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/5llwMBT.png"
-                },
+                "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/5llwMBT.png",
             ),
         ]
         self.assertEqual(len(split_nodes_image([node3])), 1)

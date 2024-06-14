@@ -102,9 +102,7 @@ def split_nodes_image(old_nodes: List[TextNode]) -> List[TextNode]:
             raise Exception("current split results in more than 2 elements")
 
         # create a TextNode of type "image"
-        curr_img_as_text_node = TextNode(
-            curr_img_tup[0], "image", {"url": curr_img_tup[1]}
-        )
+        curr_img_as_text_node = TextNode(curr_img_tup[0], "image", curr_img_tup[1])
 
         # if curr_splits has exactly 2 elements
         for i, split in enumerate(curr_splits):  # i is either 0 or 1
