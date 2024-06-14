@@ -6,6 +6,7 @@ from inline import (
     extract_markdown_links,
     split_nodes_delimiter,
     split_nodes_image,
+    split_nodes_link,
 )
 
 
@@ -197,6 +198,85 @@ class TestSplitNodeImage(unittest.TestCase):
         node5 = TextNode("Text with *italic words* inside", "text")
         expected_many = split_nodes_image([node1, node2, node3, node4, node5])
         self.assertEqual(len(expected_many), 10)
+
+
+class TestSplitNodesLink(unittest.TestCase):
+    def test_split_node_link1(self):
+        node1 = TextNode(
+            "This is text with a [first link](https://www.example.com) and [another](https://www.example.com/another)",
+            "text",
+        )
+        expected1 = split_nodes_link([node1])
+        self.assertEqual(len(expected1), 4)
+        self.assertEqual(expected1[0], TextNode("This is text with a ", "text"))
+        self.assertEqual(
+            expected1[1], TextNode("first link", "link", "https://www.example.com")
+        )
+        self.assertEqual(expected1[2], TextNode(" and ", "text"))
+        self.assertEqual(
+            expected1[3], TextNode("another", "link", "https://www.example.com/another")
+        )
+
+    def test_split_node_link2(self):
+        node2 = TextNode(
+            "This is text with only [one link](https://www.example.com)",
+            "text",
+        )
+        expected2 = split_nodes_link([node2])
+        self.assertEqual(len(expected2), 2)
+        self.assertEqual(expected2[0], TextNode("This is text with only ", "text"))
+        self.assertEqual(
+            expected2[1], TextNode("one link", "link", "https://www.example.com")
+        )
+
+    def test_split_node_link3(self):
+        node3 = TextNode(
+            "[only the link](https://www.example.com)",
+            "text",
+        )
+        expected3 = split_nodes_link([node3])
+        self.assertEqual(len(expected3), 1)
+        self.assertEqual(
+            expected3[0], TextNode("only the link", "link", "https://www.example.com")
+        )
+
+    def test_split_node_link4(self):
+        node4 = TextNode(
+            "This node has only text",
+            "text",
+        )
+        expected4 = split_nodes_link([node4])
+        self.assertEqual(len(expected4), 1)
+        self.assertEqual(expected4[0], TextNode("This node has only text", "text"))
+
+    def test_split_node_link_many(self):
+        node1 = TextNode(
+            "This is text with a [first link](https://www.example.com) and [another](https://www.example.com/another)",
+            "text",
+        )
+        node2 = TextNode(
+            "This is text with only [one link](https://www.example.com)",
+            "text",
+        )
+        node3 = TextNode(
+            "[only the link](https://www.example.com)",
+            "text",
+        )
+        node4 = TextNode(
+            "This node has only text",
+            "text",
+        )
+        expected_many = split_nodes_link([node1, node2, node3, node4])
+        self.assertEqual(len(expected_many), 8)
+        self.assertEqual(expected_many[0], TextNode("This is text with a ", "text"))
+        self.assertEqual(
+            expected_many[1], TextNode("first link", "link", "https://www.example.com")
+        )
+        self.assertEqual(expected_many[2], TextNode(" and ", "text"))
+        self.assertEqual(
+            expected_many[3],
+            TextNode("another", "link", "https://www.example.com/another"),
+        )
 
 
 if __name__ == "__main__":
