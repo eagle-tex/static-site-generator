@@ -202,11 +202,28 @@ def play_with_split_nodes_image():
     #     " and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
     #     "text",
     # )
+
     # new_nodes = split_nodes_image([node1, node2, node3, node4])
-    new_nodes = split_nodes_image([node3])
-    print(f"{len(new_nodes)} nodes returned")
-    for n in new_nodes:
-        print(n)
+    # new_nodes = split_nodes_image([node3])
+    # print(f"{len(new_nodes)} nodes returned")
+    # for n in new_nodes:
+    #     print(n)
+
+    nodes = [
+        TextNode("No images here", "text"),  # No images
+        TextNode("Start with ![image1](link1) text", "text"),  # Image at the start
+        TextNode(
+            "Middle text with ![image2](link2) inside", "text"
+        ),  # Image in the middle
+        TextNode("End text ![image3](link3)", "text"),  # Image at the end
+        TextNode("![image](link)", "text"),
+        TextNode("![image1](link1)![image2](link2)", "text"),
+        TextNode(
+            "Multiple ![image4](link4) images ![image5](link5) here", "text"
+        ),  # Multiple images
+    ]
+    for node in nodes:
+        print(split_nodes_image([node]))
 
 
 def play_with_split_nodes_link():
@@ -239,9 +256,9 @@ def main():
     # print()
     # play_with_extract_md_links()
     # print()
-    # play_with_split_nodes_image()
+    play_with_split_nodes_image()
     # print()
-    play_with_split_nodes_link()
+    # play_with_split_nodes_link()
 
 
 main()
