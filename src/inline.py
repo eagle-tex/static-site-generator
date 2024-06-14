@@ -41,10 +41,12 @@ def split_nodes_delimiter(
 
                 # Go through parts and create appropriate TextNodes
                 for i, part in enumerate(parts):
-                    if i % 2 == 0:  # Even indexes: normal text
-                        new_nodes.append(TextNode(part, "text"))
-                    else:  # Odd indexes: delimited text
-                        new_nodes.append(TextNode(part, text_type))
+                    # only create TextNodes when the text (<part>) is not empty
+                    if part != "":
+                        if i % 2 == 0:  # Even indexes: normal text
+                            new_nodes.append(TextNode(part, "text"))
+                        else:  # Odd indexes: delimited text
+                            new_nodes.append(TextNode(part, text_type))
 
             else:
                 # Directly add non-text or non-splittable nodes
