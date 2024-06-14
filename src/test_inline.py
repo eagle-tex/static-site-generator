@@ -5,6 +5,7 @@ from inline import (
     extract_markdown_images,
     extract_markdown_links,
     split_nodes_delimiter,
+    split_nodes_image,
 )
 
 
@@ -96,6 +97,106 @@ class TestExtractMarkdownImages(unittest.TestCase):
         ]
         self.assertEqual(len(extract_markdown_links(text)), 2)
         self.assertEqual(extract_markdown_links(text), expected)
+
+
+class TestSplitNodeImage(unittest.TestCase):
+    def test_split_node_img1(self):
+        node1 = TextNode(
+            "This is text with an ![first image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
+            "text",
+        )
+        expected1 = [
+            TextNode("This is text with an ", "text"),
+            TextNode(
+                "first image",
+                "image",
+                {
+                    "url": "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png"
+                },
+            ),
+            TextNode(" and another ", "text"),
+            TextNode(
+                "second image",
+                "image",
+                {
+                    "url": "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png"
+                },
+            ),
+        ]
+        self.assertEqual(len(split_nodes_image([node1])), 4)
+        self.assertEqual(split_nodes_image([node1]), expected1)
+
+    def test_split_node_img2(self):
+        node2 = TextNode(
+            "![third image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3idvOCJ.png) and another ![fourth image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/4unPdYb.png)",
+            "text",
+        )
+        expected2 = [
+            TextNode(
+                "third image",
+                "image",
+                {
+                    "url": "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3idvOCJ.png"
+                },
+            ),
+            TextNode(" and another ", "text"),
+            TextNode(
+                "fourth image",
+                "image",
+                {
+                    "url": "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/4unPdYb.png"
+                },
+            ),
+        ]
+        self.assertEqual(len(split_nodes_image([node2])), 3)
+        self.assertEqual(split_nodes_image([node2]), expected2)
+
+    def test_split_node_img3(self):
+        node3 = TextNode(
+            "![fifth image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/5llwMBT.png)",
+            "text",
+        )
+        expected3 = [
+            TextNode(
+                "fifth image",
+                "image",
+                {
+                    "url": "https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/5llwMBT.png"
+                },
+            ),
+        ]
+        self.assertEqual(len(split_nodes_image([node3])), 1)
+        self.assertEqual(split_nodes_image([node3]), expected3)
+
+    def test_split_node_img4(self):
+        node4 = TextNode("Only text", "text")
+        expected4 = [TextNode("Only text", "text")]
+        self.assertEqual(len(split_nodes_image([node4])), 1)
+        self.assertEqual(split_nodes_image([node4]), expected4)
+
+    def test_split_node_img_italic(self):
+        node5 = TextNode("Text with *italic words* inside", "text")
+        expected5 = [TextNode("Text with *italic words* inside", "text")]
+        self.assertEqual(len(split_nodes_image([node5])), 1)
+        self.assertEqual(split_nodes_image([node5]), expected5)
+
+    def test_split_node_img_many(self):
+        node1 = TextNode(
+            "This is text with an ![first image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
+            "text",
+        )
+        node2 = TextNode(
+            "![third image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3idvOCJ.png) and another ![fourth image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/4unPdYb.png)",
+            "text",
+        )
+        node3 = TextNode(
+            "![fifth image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/5llwMBT.png)",
+            "text",
+        )
+        node4 = TextNode("Only text", "text")
+        node5 = TextNode("Text with *italic words* inside", "text")
+        expected_many = split_nodes_image([node1, node2, node3, node4, node5])
+        self.assertEqual(len(expected_many), 10)
 
 
 if __name__ == "__main__":
