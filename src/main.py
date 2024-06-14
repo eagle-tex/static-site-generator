@@ -7,6 +7,7 @@ from inline import (
     split_nodes_delimiter,
     split_nodes_image,
     split_nodes_link,
+    text_to_textnodes,
 )
 from htmlnode import HTMLNode
 
@@ -245,6 +246,13 @@ def play_with_split_nodes_link():
         print(n)
 
 
+def play_with_text_to_textnodes():
+    text = "This is **text** with an *italic* word and a `code block` and an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and a [link](https://boot.dev)"
+    new_nodes = text_to_textnodes(text)
+    for node in new_nodes:
+        print(node)
+
+
 def main():
     # print("running main.py")
     # play_with_text_nodes()
@@ -256,9 +264,11 @@ def main():
     # print()
     # play_with_extract_md_links()
     # print()
-    play_with_split_nodes_image()
+    # play_with_split_nodes_image()
     # print()
     # play_with_split_nodes_link()
+    # print()
+    play_with_text_to_textnodes()
 
 
 main()
