@@ -79,3 +79,48 @@ def extract_markdown_images(text: str) -> List[tuple[str, str]]:
 def extract_markdown_links(text: str) -> List[tuple[str, str]]:
     matches = re.findall(r"\[(.*?)\]\((.*?)\)", text)
     return matches
+
+
+def split_nodes_image(old_nodes: List[TextNode]) -> List[TextNode]:
+    new_nodes = []
+    # loop through old_nodes
+    for node in old_nodes:
+        # extract all the images from the current <node> as tuples
+        image_tuples = extract_markdown_images(node.text)
+        length = len(image_tuples)
+
+        # if no image found, just return the node as is
+        if length == 0:
+            new_nodes.append(node)
+            continue
+
+        index = 0
+        curr_img_tup = image_tuples[index]
+        curr_splits = node.text.split(f"![{curr_img_tup[0]}]({curr_img_tup[1]})", 1)
+
+        if len(curr_splits) != 2:
+            raise Exception("current split results in more than 2 elements")
+
+        # create a TextNode of type "image"
+        curr_img_as_text_node = TextNode(
+            curr_img_tup[0], "image", {"url": curr_img_tup[1]}
+        )
+
+        # if curr_splits has exactly 2 elements
+        for i, split in enumerate(curr_splits):  # i is either 0 or 1
+            if i == 0:
+                # the split is at the very beginning, i.e no text before it
+                if split != "":  # if there is text before the split
+                    # create a TextNode of type text and append it to new_nodes
+                    new_nodes.append(TextNode(split, "text"))
+                # either way i.e split=="" or split !=""
+                # append the created TextNode of type "image"
+                new_nodes.append(curr_img_as_text_node)
+            else:  # i == 1
+                # the split is at the very end and no text after it
+                if split != "":
+                    if index < length:  # if there is another image to be parsed
+                        index += 1
+                        new_nodes.extend(split_nodes_image([TextNode(split, "text")]))
+
+    return new_nodes
