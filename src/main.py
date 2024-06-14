@@ -5,6 +5,7 @@ from inline import (
     extract_markdown_images,
     extract_markdown_links,
     split_nodes_delimiter,
+    split_nodes_image,
 )
 from htmlnode import HTMLNode
 
@@ -178,16 +179,46 @@ def play_with_extract_md_links():
     print(extract_markdown_links(text))
 
 
+def play_with_split_nodes_image():
+    node1 = TextNode(
+        "This is text with an ![first image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
+        "text",
+    )
+
+    node2 = TextNode(
+        "![third image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3idvOCJ.png) and another ![fourth image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/4unPdYb.png)",
+        "text",
+    )
+
+    node3 = TextNode(
+        "![fifth image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/5llwMBT.png)",
+        "text",
+    )
+
+    node4 = TextNode("Only text", "text")
+
+    # node1 = TextNode(
+    #     " and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
+    #     "text",
+    # )
+    new_nodes = split_nodes_image([node1, node2, node3, node4])
+    print(f"{len(new_nodes)} nodes returned")
+    for n in new_nodes:
+        print(n)
+
+
 def main():
-    print("running main.py")
+    # print("running main.py")
     # play_with_text_nodes()
     # play_with_html_nodes()
     # play_with_leaf_nodes()
     # play_with_parent_nodes()
     # play_with_split_delimiter()
-    play_with_extract_md_img()
-    print()
-    play_with_extract_md_links()
+    # play_with_extract_md_img()
+    # print()
+    # play_with_extract_md_links()
+    # print()
+    play_with_split_nodes_image()
 
 
 main()
