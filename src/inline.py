@@ -124,3 +124,47 @@ def split_nodes_image(old_nodes: List[TextNode]) -> List[TextNode]:
                         new_nodes.extend(split_nodes_image([TextNode(split, "text")]))
 
     return new_nodes
+
+
+def split_nodes_link(old_nodes: List[TextNode]) -> List[TextNode]:
+    new_nodes = []
+    # loop through the nodes: <old_nodes>
+    for node in old_nodes:
+        # extract all the links from the current <node> as tuples
+        link_tuples = extract_markdown_links(node.text)
+        length = len(link_tuples)
+
+        # if no link found, just return the node as is
+        if length == 0:
+            new_nodes.append(node)
+            continue  # go on to the next node in <old_nodes>
+
+        index = 0
+        curr_link_tup = link_tuples[index]
+        curr_splits = node.text.split(f"[{curr_link_tup[0]}]({curr_link_tup[1]})", 1)
+
+        if len(curr_splits) != 2:
+            raise Exception(
+                "The current split results in more than 2 elements - Check it!"
+            )
+
+        # create a TextNode of type "link"
+        curr_link_as_text_node = TextNode(curr_link_tup[0], "link", curr_link_tup[1])
+
+        # if <curr_splits> has exactly 2 elements
+        for i, split in enumerate(curr_splits):  # i is either 0 or 1
+            if i == 0:
+                # the split is at the very beginning, i.e no text before it
+                if split != "":  # if there is some text before the split
+                    # create a TextNode of type text with the split and append it to new_nodes
+                    new_nodes.append(TextNode(split, "text"))
+                # if split=="" or split!="", append the created TextNode of type "image"
+                new_nodes.append(curr_link_as_text_node)
+            else:  # i == 1
+                # the split is at the very end and has no text after it
+                if split != "":
+                    if index < length:  # if there is another link to be parsed
+                        index += 1
+                        new_nodes.extend(split_nodes_link([TextNode(split, "text")]))
+
+    return new_nodes
