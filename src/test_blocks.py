@@ -1,6 +1,6 @@
 import unittest
 
-from blocks import markdown_to_text
+from blocks import block_to_block_type, markdown_to_text
 
 
 class TestMarkdownToText(unittest.TestCase):
@@ -52,3 +52,45 @@ This is a paragraph of text. It has some **bold** and *italic* words inside of i
         ]
         self.assertEqual(result, expected)
         self.assertEqual(len(result), 3)
+
+
+class TestBlockToBlock(unittest.TestCase):
+    def test_block_type_one_of_each(self):
+        blocks = [
+            "# Heading\n## Sub-heading",
+            ">a quote block\n>second quote\n>third quote",
+            "* element 1\n* element 2\n* element 3",
+            "```py\nprint('hello')\n```",
+            "1. element 1\n2. element 2\n3. element 3",
+            "this is a paragraph\nof text",
+        ]
+        expected = []
+        for block in blocks:
+            expected.append(block_to_block_type(block))
+
+        self.assertEqual(
+            expected,
+            ["heading", "quote", "unordered_list", "code", "ordered_list", "paragraph"],
+        )
+
+    def test_block_type_all_paragraphs(self):
+        blocks = [
+            "#Heading\n## Sub-heading",  # wrong syntax on '#Heading'
+            ">a quote block\n >second quote\n>third quote",  # wrong quote syntax on 'second quote'
+            "*element 1\n* element 2\n* element 3",  # wrong unordered list syntax on 1 element
+            "```py\nprint('hello')\n``",  # code block not closed properly: 2 back ticks instead of 3
+            "1. element 1\n2. element 2\n4. element 3",  # wrong ordered list syntax: jump from 2 to 4
+        ]
+        expected = []
+        for block in blocks:
+            expected.append(block_to_block_type(block))
+
+        self.assertEqual(
+            expected,
+            ["paragraph", "paragraph", "paragraph", "paragraph", "paragraph"],
+        )
+
+    def test_block_empty_string_raises(self):
+        block = ""
+        with self.assertRaises(ValueError):
+            block_to_block_type(block)
