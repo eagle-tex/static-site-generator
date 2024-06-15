@@ -1,4 +1,4 @@
-from blocks import markdown_to_text
+from blocks import block_to_block_type, markdown_to_text
 from leafnode import LeafNode
 from parentnode import ParentNode
 from textnode import TextNode
@@ -275,6 +275,25 @@ def play_with_markdown_to_text():
         print()
 
 
+def play_with_block_types():
+    blocks = [
+        "# Heading\n## Sub-heading",
+        ">a quote block\n>second quote\n>third quote",
+        "* element 1\n* element 2\n* element 3",
+        "```py\nprint('hello')\n```",
+        "1. element 1\n2. element 2\n3. element 3",
+        "# Heading\n##Sub-heading",
+        ">a quote block\nsecond quote\n>third quote",
+        "*element 1\n* element 2\n* element 3",
+        "```py\nprint('hello')\n``",
+        "1. element 1\n2. element 2\n4. element 3",
+    ]
+    for block in blocks:
+        print("------------------------------")
+        print(block)
+        print(f"Block type: {block_to_block_type(block)}")
+
+
 def main():
     # print("running main.py")
     # play_with_text_nodes()
@@ -291,7 +310,8 @@ def main():
     # play_with_split_nodes_link()
     # print()
     # play_with_text_to_textnodes()
-    play_with_markdown_to_text()
+    # play_with_markdown_to_text()
+    play_with_block_types()
 
 
 main()
