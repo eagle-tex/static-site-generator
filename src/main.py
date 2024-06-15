@@ -1,3 +1,4 @@
+from blocks import markdown_to_text
 from leafnode import LeafNode
 from parentnode import ParentNode
 from textnode import TextNode
@@ -253,6 +254,27 @@ def play_with_text_to_textnodes():
         print(node)
 
 
+def play_with_markdown_to_text():
+    markdown = """
+# This is a heading       
+## This is a sub-heading
+
+
+         This is a paragraph of text.
+    It has some **bold** and *italic* words inside of it.
+      
+
+* This is a list item
+* This is second list item    
+* This is third list item    
+       
+    """
+    print(f"{len(markdown_to_text(markdown))} block(s) found")
+    for el in markdown_to_text(markdown):
+        print(f'"{el}"')
+        print()
+
+
 def main():
     # print("running main.py")
     # play_with_text_nodes()
@@ -268,7 +290,8 @@ def main():
     # print()
     # play_with_split_nodes_link()
     # print()
-    play_with_text_to_textnodes()
+    # play_with_text_to_textnodes()
+    play_with_markdown_to_text()
 
 
 main()
