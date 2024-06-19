@@ -10,7 +10,7 @@ class HTMLNode:
 
     def props_to_html(self):
         res = ""
-        if self.props is not None:
+        if self.props:
             for k, v in self.props.items():
                 stripped_k = k.strip('"')
                 res = res + " " + f'{stripped_k}="{v}"'
@@ -26,6 +26,7 @@ class HTMLNode:
                 r0 = pad_str(root_node_info[0], level - 1)
                 r1 = pad_str(root_node_info[1], level - 1)
                 r2 = pad_str(root_node_info[2], level - 1)
+                # TODO: work on the display of multiline text with proper padding (r3)
                 r3 = pad_str(root_node_info[3], level - 1)
                 lines.append(r0)
                 lines.append(r1)
@@ -61,7 +62,7 @@ def get_node_info(html_node):
         delimiter = "--------------------"
         title = "HTMLNode"
         tag_msg = f"Tag: {html_node.tag}"
-        value_msg = f"Value: {html_node.value}"
+        value_msg = f"Value: \n{html_node.value}"
         props_msg = f"Props: {html_node.props}"
         return delimiter, title, tag_msg, value_msg, props_msg
     raise Exception("get_node_info argument must be of type HTMLNode")
