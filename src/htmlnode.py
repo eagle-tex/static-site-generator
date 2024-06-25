@@ -35,6 +35,7 @@ class HTMLNode:
             lines = []
 
             if isinstance(node, HTMLNode):
+                # get (tag, value, props) of current node
                 root_node_info = get_node_info(node)
                 props = node.props_to_html() if node else ""
 
@@ -43,7 +44,7 @@ class HTMLNode:
                     opening_tag = pad_str(f"<{tag}{props}/>", level - 1)
                 elif tag:  # tag is not empty nor None
                     opening_tag = pad_str(f"<{root_node_info[0]}{props}>", level - 1)
-                else:  # tag is empty or None
+                else:  # tag is '' or None
                     opening_tag = ""
 
                 value = root_node_info[1]
