@@ -9,7 +9,14 @@ class ParentNode(HTMLNode):
     ):
         if not isinstance(children, list):
             raise ValueError("<children> argument must be an array")
+        # if children is None, "" or not a list
+        if not children or not isinstance(children, list):
+            children = []  # set children to an empty list
+        # then call the constructor of the parent class
         super().__init__(tag, None, children, props)
+
+    def __str__(self) -> str:
+        return super().__str__()
 
     def to_html(self):
         if not self.tag:
@@ -18,27 +25,10 @@ class ParentNode(HTMLNode):
             raise ValueError("At least one child is required for a ParentNode")
 
         props_value = self.props_to_html()
-        html = f"<{self.tag}{props_value}>"
+        html = f"<{self.tag}{props_value}>\n"
 
         for child in self.children:
-            html += child.to_html()
-
-        # def convert(node):
-        #     children_str = ""
-        #     if node.tag is not None:
-        #         children_str += f"<{node.tag}>"
-        #     for ch in node.children:
-        #         if isinstance(ch, LeafNode):
-        #             children_str += ch.to_html()
-        #         elif isinstance(ch, ParentNode):
-        #             children_str += convert(ch)
-        #         elif isinstance(ch, HTMLNode):
-        #             raise Exception("A node of type 'HTMLNode' is not allowed as child")
-        #     if node.tag is not None:
-        #         children_str += f"</{node.tag}>"
-        #     return children_str
-        #
-        # html = convert(self)
+            html += child.to_html() + "\n"
 
         html += f"</{self.tag}>"
         return html
