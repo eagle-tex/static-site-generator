@@ -1,4 +1,15 @@
-from blocks import block_to_block_type, markdown_to_text
+from blocks import (
+    list_to_html_node,
+    markdown_to_html_node,
+    paragraph_block_to_html_node,
+    quote_block_to_html_node,
+    block_to_block_type,
+    code_block_to_html_node,
+    heading_block_to_html_node,
+    markdown_to_text,
+    ordered_list_to_html_node,
+    unordered_list_to_html_node,
+)
 from leafnode import LeafNode
 from parentnode import ParentNode
 from textnode import TextNode
@@ -56,11 +67,11 @@ def play_with_html_nodes():
                 ],
             ),
         ],
-        props={
-            "href": "https://www.google.com",
-            "target": "_blank",
-            "alt": "Link to Google",
-        },
+        # props={
+        #     "href": "https://www.google.com",
+        #     "target": "_blank",
+        #     "alt": "Link to Google",
+        # },
     )
     print(html_node1)
     print()
@@ -294,6 +305,123 @@ def play_with_block_types():
         print(f"Block type: {block_to_block_type(block)}")
 
 
+def play_with_code_block_to_html_node():
+    code_block = "```py\n# comment\nnumber = 5\nprint(f'{number}')\n```"
+    result = code_block_to_html_node(code_block, "code")
+    print(result)
+
+
+def play_with_heading_block_to_html_node():
+    heading_block = "# Heading level 1\n## Heading level 2\n### Heading level 3"
+    block_type = block_to_block_type(heading_block)
+    result = heading_block_to_html_node(heading_block, block_type)
+    for node in result:
+        print(node.to_html())
+
+
+def play_with_unordered_list_to_html_node():
+    print("------ Function `play_unordered_list_to_html() ------")
+    list_block = """* item 1
+* item 2
+  * item 2.1
+  * item 2.2
+    - item 2.2.1
+    * item 2.2.2
+  * item 2.3
+  * item 2.4
+    + item 2.4.1
+    + item 2.4.2
+* item 3"""
+    block_type = block_to_block_type(list_block)
+    print(list_block)
+    print(block_type)
+    result = list_to_html_node(list_block, block_type)
+    print(result)
+    print("*****************************************************\n")
+    # print(result.to_html())
+
+
+def play_with_ordered_list_to_html_node():
+    print("------ Function `play_ordered_list_to_html() ------")
+    list_block = """1. item 1 ordered
+2. item 2 ordered
+  1. item 2.1 ordered
+  2. item 2.2 ordered
+    1. item 2.2.1 ordered
+    2. item 2.2.2 ordered
+  3. item 2.3 ordered
+  4. item 2.4 ordered
+    1. item 2.4.1 ordered
+    2. item 2.4.2 ordered
+3. item 3 ordered"""
+    block_type = block_to_block_type(list_block)
+    print(list_block)
+    print(block_type)
+    result = list_to_html_node(list_block, block_type)
+    print(result)
+    print("*****************************************************\n")
+    # print(result.to_html())
+
+
+def play_with_mixed_list_to_html_node():
+    print("------ Function `play_with_mixed_list_to_html() ------")
+    list_block = """* item 1
+* item 2
+  * item 2.1
+  * item 2.2
+    * item 2.2.1
+    * item 2.2.2
+  * item 2.3
+  * item 2.4
+    1. item 2.4.1 ordered
+    2. item 2.4.2 ordered
+* item 3"""
+    block_type = block_to_block_type(list_block)
+    print(list_block)
+    print(block_type)
+    result = list_to_html_node(list_block, block_type)
+    print(result)
+    print("*****************************************************\n")
+    # print(result.to_html())
+
+
+def play_with_quote_block_to_html_node():
+    quote_block = ">quote line 1\n>quote line 2\n>quote line 3"
+    block_type = block_to_block_type(quote_block)
+    result = quote_block_to_html_node(quote_block, block_type)
+    print(result.to_html())
+
+
+def play_with_paragraph_block_to_html_node():
+    parag_block = "First line of paragraph\nSecond line\nAnd third line"
+    block_type = block_to_block_type(parag_block)
+    result = paragraph_block_to_html_node(parag_block, block_type)
+    print(result.to_html())
+
+
+def play_with_markdown_to_html_node():
+    markdown = """
+# This is a heading       
+## This is a sub-heading
+
+
+         This is a paragraph of text.
+    It has some **bold** and *italic* words inside of it.
+      
+
+* This is one list item
+* This is another list item    
+* This is yet another list item    
+
+1. This is list item #1 
+2. This is list item #2  
+3. This is list item #3    
+       
+    """
+    result = markdown_to_html_node(markdown)
+    print(result.to_html())
+
+
 def main():
     # print("running main.py")
     # play_with_text_nodes()
@@ -311,7 +439,15 @@ def main():
     # print()
     # play_with_text_to_textnodes()
     # play_with_markdown_to_text()
-    play_with_block_types()
+    # play_with_block_types()
+    # play_with_code_block_to_html_node()
+    # play_with_heading_block_to_html_node()
+    play_with_unordered_list_to_html_node()
+    play_with_ordered_list_to_html_node()
+    play_with_mixed_list_to_html_node()
+    # play_with_quote_block_to_html_node()
+    # play_with_paragraph_block_to_html_node()
+    # play_with_markdown_to_html_node()
 
 
 main()
