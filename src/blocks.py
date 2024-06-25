@@ -36,30 +36,11 @@ def markdown_to_text(markdown: str) -> List[str]:
     """
     blocks = []
     raw_lines = markdown.split("\n")
-    not_empty_lines = list(filter(lambda text: text.strip() != "", raw_lines))
-    # stripped_lines = list(map(lambda text: text.strip(), not_empty_lines))
     stripped_lines = list(map(lambda text: text.strip(), raw_lines))
     curr_block = []
 
-    if stripped_lines[0].startswith(("- ", "* ", "+ ")):
-        is_ordered_list_el = False
-        is_unordered_list_el = True
-    elif bool(re.search(r"^(\d+)\. ", stripped_lines[0])):
-        is_ordered_list_el = True
-        is_unordered_list_el = False
-    else:
-        is_ordered_list_el = False
-        is_unordered_list_el = False
-
-    block_is_a_list = False
     for i in range(0, len(stripped_lines)):
         content = stripped_lines[i]
-        if (content[0] in "-*+" and content[1] == " ") or bool(
-            re.search(r"^(\d+)\. ", content)
-        ):
-            block_is_a_list = True
-        else:
-            block_is_a_list = False
 
     for i in range(0, len(stripped_lines)):
         content = stripped_lines[i]
@@ -68,14 +49,8 @@ def markdown_to_text(markdown: str) -> List[str]:
                 re.search(r"^(\d+)\. ", content)
             ):
                 curr_block.append(raw_lines[i].rstrip())
-                # is_ordered_list_el = False
-            # elif bool(re.search(r"^(\d+)\. ", content)) and is_ordered_list_el:
-            #     curr_block.append(raw_lines[i].rstrip())
-            # is_unordered_list_el = False
             else:
                 curr_block.append(stripped_lines[i])
-                is_ordered_list_el = False
-                is_unordered_list_el = False
         else:
             if len(curr_block) > 0:  # curr_block is not empty
                 blocks.append("\n".join(curr_block))
@@ -141,31 +116,10 @@ def block_to_block_type(block: str) -> str:
             return block_type_ordered_list
         if is_unordered_list_el:
             return block_type_unordered_list
-    # else:
-    #     return block_type_paragraph
-
-    # Check for unordered_list block
-    # new_lines = list(
-    #     filter(lambda line: line.lstrip().startswith(("* ", "+ ", "- ")), lines)
-    # )
-    # if len(new_lines) == len(lines):
-    #     return block_type_unordered_list
 
     # Check for code block
     if lines[0].startswith("```") and lines[-1].endswith("```"):
         return block_type_code
-
-    # Check for ordered_list block
-    # new_lines = []
-    # is_match = False
-    # for i in range(len(lines)):
-    #     if lines[i].lstrip().startswith(f"{i+1}. "):
-    #         is_match = True
-    #     else:
-    #         is_match = False
-    #         return block_type_paragraph
-    # if is_match:
-    #     return block_type_ordered_list
 
     # if all the other checks fail, then it's a paragraph block
     return block_type_paragraph
@@ -215,13 +169,6 @@ def heading_block_to_html_node(block: str, type: str):
         raise ValueError(f'Argument <type> different from "heading"')
 
 
-# def parse_markdown(markdown:str):
-#     lines=markdown.split("\n")
-#     root=ParentNode("div",[])
-#     stack=[(root,-1)] # Stack of tuples (node, indentation_level)
-#
-
-
 def print_stack(stack):
     result = []
     for el in stack:
@@ -230,26 +177,9 @@ def print_stack(stack):
 
 
 def add_to_parent(node, stack, leading_spaces: int):
-    # print(f"Inside `add_to_parent` A2P1 - node: {node.to_html()}")
-    # while (
-    #     stack
-    #     and stack[-1][1] >= leading_spaces
-    #     and not stack[-1][0].tag in ["ul", "ol"]
-    # ):
-    #     print(f"\tinside while loop - BEFORE POP - stack: {print_stack(stack)}")
-    #     stack.pop()
-    #     print(f"\tinside while loop - AFTER POP - stack: {print_stack(stack)}")
-    # current_parent: ParentNode = stack[-1][0]
     parent_node = stack[-1][0]
     parent_node.children.append(node)
-    # print(f"Inside `add_to_parent` A2P2: {current_parent}")
-    # if isinstance(current_parent.children, list):
-    #     current_parent.children.append(node)
-    #     print(
-    #         f"Inside `add_to_parent` A2P3 - current_parent.tag = {current_parent.tag}"
-    #     )
     stack.append((node, leading_spaces))
-    # print(f"Inside A2P4 - AFTER APPENDING NODE - stack: {print_stack(stack)}")
 
 
 def list_to_html_node(block: str, type: str):
@@ -257,15 +187,13 @@ def list_to_html_node(block: str, type: str):
         raise ValueError(f'Argument <type> is not "ordered_list" or "unordered_list"')
 
     lines = block.split("\n")
-    # print("---------------------------------")
-    # print(lines)
-    # print("---------------------------------")
     root = ParentNode("div", [])
-    # stack: List[tuple[ParentNode|LeafNode, int]] = [
     stack = [(root, -1)]  # Stack of tuples (node, indentation_level)
 
-    spaces = []
-    element_has_children = []
+    spaces = []  # a list to store the number of leading spaces for each line
+    element_has_children = (
+        []
+    )  # a list of booleans: True for each line that have nested element
     for i, line in enumerate(lines):
         leading_spaces = len(line) - len(line.lstrip())
         spaces.append(leading_spaces)
@@ -275,19 +203,12 @@ def list_to_html_node(block: str, type: str):
         if spaces[i] > spaces[i - 1]:
             element_has_children[i - 1] = True
 
-    # print(f"element_has_children: {element_has_children}")
-
     for i, line in enumerate(lines):
-        # print(f"====== Iteration {i+1} ======")
         if not line.strip():
             continue  # skip empty lines
 
-        # leading_spaces = len(line) - len(line.lstrip())
         leading_spaces = spaces[i]
         content = line.lstrip()
-        # print(f'Initial content: "{line}"')
-        # print(f'Stripped content: "{content}"')
-        # print(f"Leading spaces = {leading_spaces}")
 
         list_type = ""
         # Determine the list item type and tag
@@ -295,64 +216,11 @@ def list_to_html_node(block: str, type: str):
             # Unordered list item
             content = content[1:].lstrip()
             list_type = "ul"
-            # if element_has_children[i]:
-            #     item_node = ParentNode("li", [LeafNode(None, content)])
-            # else:
-            #     item_node = LeafNode("li", content)
-            #
-            # while (
-            #     stack
-            #     and (
-            #         stack[-1][1] >= leading_spaces
-            #         and not stack[-1][0].tag in ["ul", "ol"]
-            #     )
-            #     or (stack[-1][1] > leading_spaces and stack[-1][0].tag in ["ul", "ol"])
-            # ):
-            #     # print(
-            #     #     f"\tinside while loop 1 - BEFORE POP - stack: {print_stack(stack)}"
-            #     # )
-            #     stack.pop()
-            #     # print(
-            #     #     f"\tinside while loop 1 - AFTER POP - stack: {print_stack(stack)}"
-            #     # )
-            #
-            # # Check if the current parent is not an unordered list
-            # # if not stack[-1][0].tag in ["ul", "ol"]:
-            # if stack[-1][0].tag not in ["ul", "ol"]:
-            #     # print(f'Stack last item tag = "{stack[-1][0]}"')
-            #     list_node = ParentNode(list_type, [])
-            #     add_to_parent(list_node, stack, leading_spaces)
-            #     add_to_parent(item_node, stack, leading_spaces)
-            # else:
-            #     add_to_parent(item_node, stack, leading_spaces)
 
         elif bool(re.search(r"^(\d+)\.", content)):
             # Ordered list item
             content = content.lstrip("0123456789.").lstrip(" ")
-            print(f"ordered_list detected - content = {content}")
             list_type = "ol"
-            # if element_has_children[i]:
-            #     item_node = ParentNode("li", [LeafNode(None, content)])
-            # else:
-            #     item_node = LeafNode("li", content)
-            #
-            # while (
-            #     stack
-            #     and (
-            #         stack[-1][1] >= leading_spaces
-            #         and not stack[-1][0].tag in ["ul", "ol"]
-            #     )
-            #     or (stack[-1][1] > leading_spaces and stack[-1][0].tag in ["ul", "ol"])
-            # ):
-            #     stack.pop()
-            #
-            # # Check if the current parent is an ordered list
-            # if stack[-1][0].tag not in ["ol", "ul"]:
-            #     list_node = ParentNode(list_type, [])
-            #     add_to_parent(list_node, stack, leading_spaces)
-            #     add_to_parent(item_node, stack, leading_spaces)
-            # else:
-            #     add_to_parent(item_node, stack, leading_spaces)
 
         if element_has_children[i]:
             item_node = ParentNode("li", [LeafNode(None, content)])
@@ -431,10 +299,6 @@ def quote_block_to_html_node(content: str, type: str = "quote"):
 def markdown_to_html_node(markdown: str):
     children = []
     raw_text_blocks = markdown_to_text(markdown)
-    # print("------- Raw Text Blocks -------")
-    # for rtb in raw_text_blocks:
-    #     print(rtb)
-    # print()
 
     for curr_block in raw_text_blocks:
         child_node = None
