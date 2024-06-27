@@ -36,6 +36,7 @@ def markdown_to_text(markdown: str) -> List[str]:
     """
     blocks = []
     raw_lines = markdown.split("\n")
+    print(f"markdown_to_text -> raw_lines = {raw_lines}")
     stripped_lines = list(map(lambda text: text.strip(), raw_lines))
     curr_block = []
 
@@ -322,3 +323,4 @@ def markdown_to_html_node(markdown: str):
         children.append(child_node)
 
     return ParentNode("div", children)
+

@@ -39,31 +39,66 @@ class HTMLNode:
                 root_node_info = get_node_info(node)
                 props = node.props_to_html() if node else ""
 
-                tag = root_node_info[0]
-                if tag in SELF_CLOSING_TAGS:
-                    opening_tag = pad_str(f"<{tag}{props}/>", level - 1)
-                elif tag:  # tag is not empty nor None
+                str_tag = root_node_info[0]
+                if str_tag in SELF_CLOSING_TAGS:
+                    opening_tag = pad_str(f"<{str_tag}{props}/>", level - 1)
+                elif str_tag:  # tag is not empty nor None
                     opening_tag = pad_str(f"<{root_node_info[0]}{props}>", level - 1)
                 else:  # tag is '' or None
                     opening_tag = ""
 
-                value = root_node_info[1]
-                if value:  # value != ''
-                    if tag:  # tag != ''
-                        value = pad_str(value, level)
-                    else:  # tag is falsy ('' or None. '' in this case, since tag is a string)
-                        value = pad_str(value, level - 1)
+                raw_value = root_node_info[1]
+                raw_lines = raw_value.split("\n")
+                # TODO: remove print line
+                # print(f'raw_lines: "{raw_lines}"')
+                if raw_value:  # raw_value != ''
+                    if str_tag:  # str_tag != ''
+                        if len(raw_lines) > 1:
+                            value_lines = []
+                            for raw_line in raw_lines:
+                                if str_tag == "code":
+                                    value_lines.append(
+                                        pad_str(raw_line.rstrip(), level)
+                                    )
+                                    print(f'raw_line: "{raw_line}"')
+                                else:
+                                    if raw_line.strip():  # ADDED
+                                        value_lines.append(
+                                            pad_str(raw_line.strip(), level)
+                                        )
+                            value = "\n".join(value_lines)
+                        else:  # len(raw_lines) == 1
+                            if str_tag == "code":
+                                value = pad_str(
+                                    raw_value.rstrip(), level
+                                )  # preserve whitespace
+                                # print("I was here for CODE")
+                            else:
+                                value = pad_str(raw_value.strip(), level)
+                    else:  # str_tag is falsy i.e == ''
+                        value = pad_str(raw_value.strip(), level - 1)
+                else:  # raw_value == ''
+                    value = ""
 
                 if isinstance(node.children, list) and node.children:
-                    if tag in SELF_CLOSING_TAGS:
-                        raise Exception(f"<{tag}> tag cannot have children")
+                    if str_tag in SELF_CLOSING_TAGS:
+                        raise Exception(f"<{str_tag}> tag cannot have children")
                     if opening_tag:  # opening_tag != ''
                         closing_tag = pad_str(f"</{root_node_info[0]}>", level - 1)
-                        if len(opening_tag) + len(value.strip()) <= MAX_LENGTH - 7:
-                            lines.append(f"{opening_tag}{value.strip()}")
-                        else:
-                            lines.append(opening_tag)
+                        # if (
+                        #     len(raw_lines) == 1
+                        #     and (len(opening_tag) + len(value)) <= MAX_LENGTH - 7
+                        # ):
+                        #     print(f"raw_lines: {raw_lines}")
+                        #     print(f'value: "{value}"')
+                        #     lines.append(f"{opening_tag}{value}")
+                        # else:
+                        lines.append(opening_tag)
+                        # TODO: remove print line
+                        # print(f'Before appending value check: value = "{value}"')
+                        if value:  # value != ''
                             lines.append(value)
+
                     else:  # opening_tag == ''
                         lines.append(value)
 
@@ -75,9 +110,15 @@ class HTMLNode:
                     lines.append(closing_tag)
                 else:  # node does not have any children (node.children == [] or None)
                     if opening_tag:  # opening_tag != ''
-                        if tag not in SELF_CLOSING_TAGS:
+                        if str_tag not in SELF_CLOSING_TAGS:
                             closing_tag = pad_str(f"</{root_node_info[0]}>", level - 1)
-                            if (
+
+                            # TODO: Eventually handle the case where str_tag == "code"
+                            if str_tag == "code":
+                                pass
+                                # print("I was here for CODE 222")
+
+                            if len(raw_lines) == 1 and (
                                 len(opening_tag)
                                 + len(value.strip())
                                 + len(closing_tag.strip())
@@ -105,14 +146,22 @@ class HTMLNode:
 
 def get_node_info(html_node):
     if isinstance(html_node, HTMLNode):
-        tag = f"{html_node.tag}" if html_node.tag else ""
-        value = f"{html_node.value}" if html_node.value else ""
-        props = f"{html_node.props}" if html_node.props else ""
+        str_tag = f"{html_node.tag}" if html_node.tag else ""
+        str_value = f"{html_node.value}" if html_node.value else ""
+        str_props = f"{html_node.props}" if html_node.props else ""
 
-        return tag, value, props
+        return str_tag, str_value, str_props
     raise Exception("get_node_info argument must be of type HTMLNode")
 
 
 def pad_str(str, level=1):
     leading_spaces = " " * 2 * level
     return leading_spaces + str
+
+
+def flatten_html_element(html_str):
+    output = ""
+    lines = html_str.split("\n")
+    for line in lines:
+        output += line.strip()
+    return output
