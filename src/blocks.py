@@ -35,9 +35,7 @@ def markdown_to_text(markdown: str) -> List[str]:
     """
     blocks = []
     raw_lines = markdown.split("\n")
-    # print(f"markdown_to_text -> raw_lines = {raw_lines}")
     stripped_lines = list(map(lambda text: text.strip(), raw_lines))
-    # print(f"markdown_to_text -> stripped_lines = {stripped_lines}")
     curr_block = []
     code_block_active = False
 
@@ -66,26 +64,14 @@ def markdown_to_text(markdown: str) -> List[str]:
                 curr_block.append(raw_lines[i].rstrip())
             else:
                 curr_block.append(content)
-                # curr_block.append(raw_lines[i])
-                # print(f"markdown_to_text -> curr_block = {curr_block}")
-                # print("I was here")
 
             if i == len(stripped_lines) - 1:  # last line
                 blocks.append("\n".join(curr_block))
-                # print(f"curr_block_length = {len(curr_block)}")
-                # print(f"markdown_to_text -> blocks = {blocks}")
         else:
             if len(curr_block) > 0:  # curr_block is not empty
                 blocks.append("\n".join(curr_block))
-                # print(f"markdown_to_text -> curr_block length > 1 -> blocks = {blocks}")
                 curr_block = []  # reset curr_block
 
-    # for block in blocks:
-    #     if block[0].startswith("```") and block[-1].endswith("```"):
-    #         pass
-    # elif
-
-    # print(f"markdown_to_text -> blocks = {blocks}")
     return blocks
 
 
@@ -162,17 +148,17 @@ def code_block_to_html_node(block: str, type: str):
     nodes = []
     if type == "code":
         block_lines = block.split("\n")
-        for bl in block_lines:
-            if bl.startswith("```"):
+        for block_line in block_lines:
+            if block_line.startswith("```"):
                 # do not add this line to the output
                 continue
-            elif bl.endswith("```"):
-                if len(bl) > 3:
-                    nodes.append(bl.rstrip("`"))
+            elif block_line.endswith("```"):
+                if len(block_line) > 3:
+                    nodes.append(block_line.rstrip("`"))
                 else:
                     continue
             else:
-                nodes.append(bl)
+                nodes.append(block_line)
         nodes_as_text = "\n".join(nodes)
         html_node = ParentNode("pre", [LeafNode("code", nodes_as_text, None)])
         return html_node
@@ -209,9 +195,19 @@ def print_stack(stack):
     return result
 
 
+def clean_stack(stack, leading_spaces):
+    while (
+        stack
+        and (stack[-1][1] >= leading_spaces and not stack[-1][0].tag in ["ul", "ol"])
+        or (stack[-1][1] > leading_spaces and stack[-1][0].tag in ["ul", "ol"])
+    ):
+        stack.pop()
+
+
 def add_to_parent(node, stack, leading_spaces: int):
     parent_node = stack[-1][0]
-    parent_node.children.append(node)
+    if isinstance(parent_node, ParentNode) and isinstance(parent_node.children, list):
+        parent_node.children.append(node)
     stack.append((node, leading_spaces))
 
 
@@ -224,9 +220,8 @@ def list_to_html_node(block: str, type: str):
     stack = [(root, -1)]  # Stack of tuples (node, indentation_level)
 
     spaces = []  # a list to store the number of leading spaces for each line
-    element_has_children = (
-        []
-    )  # a list of booleans: True for each line that have nested element
+    # A list of booleans: True for each line that have a nested element
+    element_has_children = []
     for i, line in enumerate(lines):
         leading_spaces = len(line) - len(line.lstrip())
         spaces.append(leading_spaces)
@@ -269,8 +264,7 @@ def list_to_html_node(block: str, type: str):
         ):
             stack.pop()
 
-        # Check if the current parent is not an unordered list
-        # if not stack[-1][0].tag in ["ul", "ol"]:
+        # Check if the current parent is not a ordered list
         if stack[-1][0].tag not in ["ul", "ol"]:
             # print(f'Stack last item tag = "{stack[-1][0]}"')
             list_node = ParentNode(list_type, [])
@@ -329,34 +323,127 @@ def quote_block_to_html_node(content: str, type: str = "quote"):
     return parent_node
 
 
+def parse_markdown(markdown):
+    lines = markdown.split("\n")
+    root = ParentNode("div", [])
+    stack = [(root, -1)]
+
+    spaces = []  # a list to store the number of leading spaces for each line
+    # A list of booleans: True for each line that have a nested element
+    element_has_children = []
+    for i, line in enumerate(lines):
+        leading_spaces = len(line) - len(line.lstrip())
+        spaces.append(leading_spaces)
+        element_has_children.append(False)  # fill array with False values
+
+    for i in range(1, len(lines)):
+        if spaces[i] > spaces[i - 1]:
+            element_has_children[i - 1] = True
+
+    code_block_active = False
+    code_block_content = []
+    code_block_lines_leading_spaces = []
+
+    for i, line in enumerate(lines):
+        content = line.strip()
+        leading_spaces = spaces[i]
+
+        if content.startswith("```"):
+            if code_block_active:
+                # End of code block
+                code_node = ParentNode(
+                    "pre", [LeafNode("code", "\n".join(code_block_content))]
+                )
+                add_to_parent(code_node, stack, leading_spaces)
+                code_block_active = False
+                code_block_content = []
+                # number of leading spaces on chaque line in a code block
+                code_block_lines_leading_spaces = []
+            else:
+                # Start of code block
+                code_block_active = True
+                # element_has_children[i + 1] = False
+                code_block_content = []
+                code_block_lines_leading_spaces = []
+            continue
+
+        if code_block_active:
+            # Append the line with all its leading spaces
+            # TODO: add comments to explain these variables
+            code_block_lines_leading_spaces.append(leading_spaces)
+            num_of_elements_in_code_block = len(code_block_lines_leading_spaces)
+            number_of_spaces = (
+                code_block_lines_leading_spaces[num_of_elements_in_code_block - 1]
+                - code_block_lines_leading_spaces[0]
+            )
+            code_line_padding = number_of_spaces * " "
+            code_block_content.append(code_line_padding + content)
+            continue
+
+        if content.startswith(">"):
+            blockquote_content = content[1:].strip()
+            blockquote_node = ParentNode(
+                "blockquote", [LeafNode("p", blockquote_content)]
+            )
+            add_to_parent(blockquote_node, stack, leading_spaces)
+
+        elif content.startswith("#"):
+            hash_count = content.count("#", 0, content.index(" "))
+            heading_content = content[hash_count:].strip()
+            heading_node = LeafNode(f"h{hash_count}", heading_content)
+            clean_stack(stack, leading_spaces)
+            add_to_parent(heading_node, stack, leading_spaces)
+
+        elif (content.startswith(("- ", "* ", "+ "))) or bool(
+            re.search(r"^(\d+)\. ", content)
+        ):
+            list_type = ""
+            # Determine the list item type and tag
+            if content.startswith(("-", "*", "+")):
+                # Unordered list item
+                content = content[1:].lstrip()
+                list_type = "ul"
+
+            elif bool(re.search(r"^(\d+)\.", content)):
+                # Ordered list item
+                content = content.lstrip("0123456789.").lstrip(" ")
+                list_type = "ol"
+
+            if element_has_children[i]:
+                item_node = ParentNode("li", [LeafNode(None, content)])
+            else:
+                item_node = LeafNode("li", content)
+
+            clean_stack(stack, leading_spaces)
+
+            # Check if the current parent is not a list, unordered or ordered
+            if stack[-1][0].tag not in ["ul", "ol"]:
+                list_node = ParentNode(list_type, [])
+                add_to_parent(list_node, stack, leading_spaces)
+                add_to_parent(item_node, stack, leading_spaces)
+            else:
+                add_to_parent(item_node, stack, leading_spaces)
+
+        else:
+            if content:
+                paragraph_node = LeafNode("p", content)
+                clean_stack(stack, leading_spaces)
+                add_to_parent(paragraph_node, stack, leading_spaces)
+
+    return root
+
+
 def markdown_to_html_node(markdown: str):
     children = []
     raw_text_blocks = markdown_to_text(markdown)
 
     for curr_block in raw_text_blocks:
-        child_node = None
-        block_type = block_to_block_type(curr_block)
-        if block_type == block_type_code:
-            child_node = code_block_to_html_node(curr_block, block_type_code)
-        elif block_type == block_type_heading:
-            # heading_block_to_html_node returns an array of heading LeafNodes
-            children.extend(heading_block_to_html_node(curr_block, block_type_heading))
-            continue  # move directly to next iteration
-        elif block_type in [block_type_ordered_list, block_type_unordered_list]:
-            list_node = list_to_html_node(curr_block, block_type_ordered_list)
-            # Get the first element inside the div, the root <ul> or <ol> element
-            if isinstance(list_node.children, list):
-                child_node = list_node.children[0]
-            else:
-                child_node = []
-            # directly return here because the list_to_html_node already
-            # wraps the lists inside a div. No need to wrap it inside another div
-            # return list_node  # immediate return
-        elif block_type == block_type_quote:
-            child_node = quote_block_to_html_node(curr_block, block_type_quote)
-        else:
-            child_node = paragraph_block_to_html_node(curr_block, block_type_paragraph)
-            # print("block type is paragraph")
-        children.append(child_node)
+        current_node = parse_markdown(curr_block)
+        if (
+            isinstance(current_node, ParentNode)
+            and isinstance(current_node.children, list)
+            and len(current_node.children) > 0
+        ):
+            children.extend(current_node.children)
 
-    return ParentNode("div", children)  # wrap the child node inside a div
+    return ParentNode("div", children)
