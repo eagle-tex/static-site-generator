@@ -28,7 +28,16 @@ class ParentNode(HTMLNode):
         html = f"<{self.tag}{props_value}>\n"
 
         for child in self.children:
-            html += child.to_html() + "\n"
+            if isinstance(child, ParentNode) or isinstance(child, LeafNode):
+                html += child.to_html() + "\n"
+            elif isinstance(child, HTMLNode):
+                print(
+                    "inside ParentNode.to_html() and this is an HTMLNode. Watch it!!!"
+                )
+                raise TypeError(
+                    f'Child node "<{child.tag}>" is of type HTMLNode, which is prohibited.\
+                    Must be ParentNode or LeafNode'
+                )
 
         html += f"</{self.tag}>"
         return html
