@@ -49,8 +49,6 @@ class HTMLNode:
 
                 raw_value = root_node_info[1]
                 raw_lines = raw_value.split("\n")
-                # TODO: remove print line
-                # print(f'raw_lines: "{raw_lines}"')
                 if raw_value:  # raw_value != ''
                     if str_tag:  # str_tag != ''
                         if len(raw_lines) > 1:
@@ -60,7 +58,6 @@ class HTMLNode:
                                     value_lines.append(
                                         pad_str(raw_line.rstrip(), level)
                                     )
-                                    print(f'raw_line: "{raw_line}"')
                                 else:
                                     if raw_line.strip():  # ADDED
                                         value_lines.append(
@@ -85,17 +82,7 @@ class HTMLNode:
                         raise Exception(f"<{str_tag}> tag cannot have children")
                     if opening_tag:  # opening_tag != ''
                         closing_tag = pad_str(f"</{root_node_info[0]}>", level - 1)
-                        # if (
-                        #     len(raw_lines) == 1
-                        #     and (len(opening_tag) + len(value)) <= MAX_LENGTH - 7
-                        # ):
-                        #     print(f"raw_lines: {raw_lines}")
-                        #     print(f'value: "{value}"')
-                        #     lines.append(f"{opening_tag}{value}")
-                        # else:
                         lines.append(opening_tag)
-                        # TODO: remove print line
-                        # print(f'Before appending value check: value = "{value}"')
                         if value:  # value != ''
                             lines.append(value)
 
@@ -113,10 +100,9 @@ class HTMLNode:
                         if str_tag not in SELF_CLOSING_TAGS:
                             closing_tag = pad_str(f"</{root_node_info[0]}>", level - 1)
 
-                            # TODO: Eventually handle the case where str_tag == "code"
+                            # TODO: If needed, handle the case where str_tag == "code"
                             if str_tag == "code":
                                 pass
-                                # print("I was here for CODE 222")
 
                             if len(raw_lines) == 1 and (
                                 len(opening_tag)
