@@ -24,13 +24,13 @@ class TestHTMLNode(unittest.TestCase):
             "a",
             "My link",
             children=[
-                HTMLNode("a1", "Google"),
+                HTMLNode("SEARCH", "Google"),
                 HTMLNode(
-                    "a2",
+                    "DUMMY",
                     "Netflix",
                     children=[
                         HTMLNode(
-                            "a21",
+                            "IMAGINARY",
                             "What's next?",
                             children=None,
                             props={"src": "image source", "alt": "a picture"},
@@ -45,41 +45,20 @@ class TestHTMLNode(unittest.TestCase):
             },
         )
         repr = html_node1.__repr__()
-        expected_output = """--------------------
-HTMLNode
-Tag: a
-Value: My link
-Child #1
-    --------------------
-    HTMLNode
-    Tag: a1
-    Value: Google
-    Children: None
-    Props: None
-    --------------------
-Child #2
-    --------------------
-    HTMLNode
-    Tag: a2
-    Value: Netflix
-    Child #1
-        --------------------
-        HTMLNode
-        Tag: a21
-        Value: What's next?
-        Children: None
-        Props: {'src': 'image source', 'alt': 'a picture'}
-        --------------------
-    Props: None
-    --------------------
-Props: {'href': 'https://www.google.com', 'target': '_blank', 'alt': 'Link to Google'}
---------------------"""
+        expected_output = """<a href="https://www.google.com" target="_blank" alt="Link to Google">
+  My link
+  <SEARCH>Google</SEARCH>
+  <DUMMY>
+    Netflix
+    <IMAGINARY src="image source" alt="a picture">What's next?</IMAGINARY>
+  </DUMMY>
+</a>"""
         # print(html_node1)
         self.assertEqual(repr, expected_output)
 
     def test_repr2(self):
         html_node2 = HTMLNode(
-            "b",
+            "link_tag",
             "My link",
             children=None,
             props={
@@ -89,13 +68,9 @@ Props: {'href': 'https://www.google.com', 'target': '_blank', 'alt': 'Link to Go
             },
         )
         repr = html_node2.__repr__()
-        expected_output = """--------------------
-HTMLNode
-Tag: b
-Value: My link
-Children: None
-Props: {'href': 'https://www.google.com', 'target': '_blank', 'alt': 'Link to Google'}
---------------------"""
+        expected_output = """<link_tag href="https://www.google.com" target="_blank" alt="Link to Google">
+  My link
+</link_tag>"""
         self.assertEqual(repr, expected_output)
 
 
