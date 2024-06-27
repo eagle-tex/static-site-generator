@@ -1,7 +1,6 @@
 from typing import List
 import re
 
-from htmlnode import HTMLNode
 from leafnode import LeafNode
 from parentnode import ParentNode
 
@@ -36,27 +35,57 @@ def markdown_to_text(markdown: str) -> List[str]:
     """
     blocks = []
     raw_lines = markdown.split("\n")
-    print(f"markdown_to_text -> raw_lines = {raw_lines}")
+    # print(f"markdown_to_text -> raw_lines = {raw_lines}")
     stripped_lines = list(map(lambda text: text.strip(), raw_lines))
+    # print(f"markdown_to_text -> stripped_lines = {stripped_lines}")
     curr_block = []
-
-    for i in range(0, len(stripped_lines)):
-        content = stripped_lines[i]
+    code_block_active = False
 
     for i in range(0, len(stripped_lines)):
         content = stripped_lines[i]
         if content != "":
             if content.startswith(("- ", "* ", "+ ")) or bool(
                 re.search(r"^(\d+)\. ", content)
-            ):
+            ):  # list (unordered or ordered)
+                curr_block.append(raw_lines[i].rstrip())
+            elif content.startswith("#") and not code_block_active:  # heading
+                curr_block.append(content.strip())
+            elif content.startswith("> "):  # blockquote
+                curr_block.append(content.strip())
+            elif content.startswith("```") and not code_block_active:
+                code_block_active = True
+                curr_block.append(
+                    raw_lines[i].rstrip()
+                )  # add line with beginning whitespace
+            elif content.endswith("```") and code_block_active:
+                curr_block.append(
+                    raw_lines[i].rstrip()
+                )  # add line with beginning whitespace
+                code_block_active = False
+            elif code_block_active:
                 curr_block.append(raw_lines[i].rstrip())
             else:
-                curr_block.append(stripped_lines[i])
+                curr_block.append(content)
+                # curr_block.append(raw_lines[i])
+                # print(f"markdown_to_text -> curr_block = {curr_block}")
+                # print("I was here")
+
+            if i == len(stripped_lines) - 1:  # last line
+                blocks.append("\n".join(curr_block))
+                # print(f"curr_block_length = {len(curr_block)}")
+                # print(f"markdown_to_text -> blocks = {blocks}")
         else:
             if len(curr_block) > 0:  # curr_block is not empty
                 blocks.append("\n".join(curr_block))
+                # print(f"markdown_to_text -> curr_block length > 1 -> blocks = {blocks}")
                 curr_block = []  # reset curr_block
 
+    # for block in blocks:
+    #     if block[0].startswith("```") and block[-1].endswith("```"):
+    #         pass
+    # elif
+
+    # print(f"markdown_to_text -> blocks = {blocks}")
     return blocks
 
 
@@ -75,9 +104,9 @@ def block_to_block_type(block: str) -> str:
     lines = block.split("\n")
 
     def is_heading(line):
-        stripped_line = line.strip("#")
-        if stripped_line != line:
-            if stripped_line[0] == " " and stripped_line[1] != " ":
+        left_stripped_line = line.lstrip("#")
+        if left_stripped_line.rstrip() != line.rstrip():
+            if left_stripped_line[0] == " " and left_stripped_line[1] != " ":
                 return True
         return False
 
@@ -105,12 +134,15 @@ def block_to_block_type(block: str) -> str:
     block_is_a_list = False
     for i in range(0, len(stripped_lines)):
         content = stripped_lines[i]
-        if (content[0] in "-*+" and content[1] == " ") or bool(
-            re.search(r"^(\d+)\. ", content)
-        ):
-            block_is_a_list = True
+        if content:
+            if (content[0] in "-*+" and content[1] == " ") or bool(
+                re.search(r"^(\d+)\. ", content)
+            ):
+                block_is_a_list = True
+            else:
+                block_is_a_list = False
         else:
-            block_is_a_list = False
+            continue
 
     if block_is_a_list:
         if is_ordered_list_el:
@@ -142,7 +174,7 @@ def code_block_to_html_node(block: str, type: str):
             else:
                 nodes.append(bl)
         nodes_as_text = "\n".join(nodes)
-        html_node = HTMLNode("pre", None, [HTMLNode("code", nodes_as_text, None, None)])
+        html_node = ParentNode("pre", [LeafNode("code", nodes_as_text, None)])
         return html_node
     else:
         raise ValueError(f'Argument <type> different from "code"')
@@ -158,12 +190,12 @@ def heading_block_to_html_node(block: str, type: str):
             # count the number of "#" at the beginning
             num_hashes = 0
             for i in range(6):  # maximum 6 hashes allowed
-                if line[i] == "#":
+                if line[i].lstrip() == "#":
                     num_hashes += 1
                 else:  # if line[i] != "#"
                     break
             tag = f"h{num_hashes}"
-            curr_node = LeafNode(tag, line.lstrip("# "))
+            curr_node = LeafNode(tag, line.rstrip().lstrip("# "))
             nodes.append(curr_node)
         return nodes
     else:
@@ -280,7 +312,7 @@ def paragraph_block_to_html_node(content: str, type: str = "paragraph"):
     if type != "paragraph":
         raise ValueError(f'Argument <type> is not "paragraph"')
 
-    node = LeafNode("p", content)
+    node = LeafNode("p", content.strip())
     return node
 
 
@@ -291,7 +323,7 @@ def quote_block_to_html_node(content: str, type: str = "quote"):
 
     lines = content.split("\n")
     for line in lines:
-        nodes.append(LeafNode(None, f'{line.lstrip(">")}\n'))
+        nodes.append(LeafNode("p", f'{line.lstrip("> ")}'))
 
     parent_node = ParentNode("blockquote", nodes)
     return parent_node
@@ -310,17 +342,21 @@ def markdown_to_html_node(markdown: str):
             # heading_block_to_html_node returns an array of heading LeafNodes
             children.extend(heading_block_to_html_node(curr_block, block_type_heading))
             continue  # move directly to next iteration
-        elif block_type == block_type_ordered_list:
-            child_node = ordered_list_to_html_node(curr_block, block_type_ordered_list)
+        elif block_type in [block_type_ordered_list, block_type_unordered_list]:
+            list_node = list_to_html_node(curr_block, block_type_ordered_list)
+            # Get the first element inside the div, the root <ul> or <ol> element
+            if isinstance(list_node.children, list):
+                child_node = list_node.children[0]
+            else:
+                child_node = []
+            # directly return here because the list_to_html_node already
+            # wraps the lists inside a div. No need to wrap it inside another div
+            # return list_node  # immediate return
         elif block_type == block_type_quote:
             child_node = quote_block_to_html_node(curr_block, block_type_quote)
-        elif block_type == block_type_unordered_list:
-            child_node = unordered_list_to_html_node(
-                curr_block, block_type_unordered_list
-            )
         else:
             child_node = paragraph_block_to_html_node(curr_block, block_type_paragraph)
+            # print("block type is paragraph")
         children.append(child_node)
 
-    return ParentNode("div", children)
-
+    return ParentNode("div", children)  # wrap the child node inside a div
