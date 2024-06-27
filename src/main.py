@@ -7,8 +7,6 @@ from blocks import (
     code_block_to_html_node,
     heading_block_to_html_node,
     markdown_to_text,
-    ordered_list_to_html_node,
-    unordered_list_to_html_node,
 )
 from leafnode import LeafNode
 from parentnode import ParentNode
@@ -50,34 +48,35 @@ def play_with_text_nodes():
 def play_with_html_nodes():
     print("**************** HTML NODES *******************")
     html_node1 = HTMLNode(
-        "div",
+        "a",
         "My link",
         children=[
-            HTMLNode("h2", "Google"),
+            HTMLNode("SEARCH", "Google"),
             HTMLNode(
-                "div",
+                "DUMMY",
                 "Netflix",
                 children=[
                     HTMLNode(
-                        "img",
-                        None,
+                        "IMAGINARY",
+                        "What's next?",
                         children=None,
                         props={"src": "image source", "alt": "a picture"},
                     )
                 ],
             ),
         ],
-        # props={
-        #     "href": "https://www.google.com",
-        #     "target": "_blank",
-        #     "alt": "Link to Google",
-        # },
+        props={
+            "href": "https://www.google.com",
+            "target": "_blank",
+            "alt": "Link to Google",
+        },
     )
+
     print(html_node1)
     print()
 
     html_node2 = HTMLNode(
-        "a",
+        "link_tag",
         "My link",
         children=None,
         props={
@@ -114,7 +113,7 @@ def play_with_parent_nodes():
             LeafNode(None, "Normal text"),
         ],
     )
-    print(parent_node1.to_html())
+    print(parent_node1)  # or maybe? parent_node1.to_html()
 
     parent_node2 = ParentNode(
         "div",
@@ -138,7 +137,7 @@ def play_with_parent_nodes():
             LeafNode(None, "Normal text"),
         ],
     )
-    print(parent_node2.to_html())
+    print(parent_node2)  # or maybe? parent_node2.to_html()
     print()
 
     nested_node = ParentNode(
@@ -154,7 +153,7 @@ def play_with_parent_nodes():
             LeafNode(None, "Normal text inside outer div"),
         ],
     )
-    print(nested_node.to_html())
+    print(nested_node)  # or maybe? nested_node.to_html()
     print()
 
     one_child_node = ParentNode(
@@ -281,6 +280,9 @@ def play_with_markdown_to_text():
        
     """
     print(f"{len(markdown_to_text(markdown))} block(s) found")
+    print("-----------------")
+    print(markdown_to_text(markdown))
+    print("-----------------")
     for el in markdown_to_text(markdown):
         print(f'"{el}"')
         print()
@@ -307,8 +309,12 @@ def play_with_block_types():
 
 def play_with_code_block_to_html_node():
     code_block = "```py\n# comment\nnumber = 5\nprint(f'{number}')\n```"
+    block_type = block_to_block_type(code_block)
+    print(block_type)
     result = code_block_to_html_node(code_block, "code")
     print(result)
+    print(f"Type of result = {type(result).__name__}")
+    print()
 
 
 def play_with_heading_block_to_html_node():
@@ -365,17 +371,32 @@ def play_with_ordered_list_to_html_node():
 
 def play_with_mixed_list_to_html_node():
     print("------ Function `play_with_mixed_list_to_html() ------")
-    list_block = """* item 1
-* item 2
-  * item 2.1
-  * item 2.2
-    * item 2.2.1
-    * item 2.2.2
-  * item 2.3
-  * item 2.4
+    #     list_block = """* item 1
+    # * item 2
+    #   * item 2.1
+    #   * item 2.2
+    #     * item 2.2.1
+    #     * item 2.2.2
+    #   * item 2.3
+    #   * item 2.4
+    #     1. item 2.4.1 ordered
+    #     2. item 2.4.2 ordered
+    # * item 3"""
+
+    list_block = """1. item 1 ordered
+2. item 2 ordered
+  + item 2.1 unordered
+  + item 2.2 unordered
+    1. item 2.2.1 ordered
+    2. item 2.2.2 ordered
+  * item 2.3 unordered
+  - item 2.4 unordered
     1. item 2.4.1 ordered
     2. item 2.4.2 ordered
-* item 3"""
+      - item 2.4.2.1 unordered
+      * item 2.4.2.2 unordered
+3. item 3 ordered"""
+
     block_type = block_to_block_type(list_block)
     print(list_block)
     print(block_type)
@@ -396,30 +417,141 @@ def play_with_paragraph_block_to_html_node():
     parag_block = "First line of paragraph\nSecond line\nAnd third line"
     block_type = block_to_block_type(parag_block)
     result = paragraph_block_to_html_node(parag_block, block_type)
-    print(result.to_html())
+    print(result)
 
 
 def play_with_markdown_to_html_node():
-    markdown = """
-# This is a heading       
-## This is a sub-heading
+    #     markdown = """
+    # # This is a heading
+    # ## This is a sub-heading
+    #
+    #
+    #          This is a paragraph of text.
+    #     It has some **bold** and *italic* words inside of it.
+    #
+    #
+    # * This is one list item
+    # * This is another list item
+    # * This is yet another list item
+    #
+    # 1. This is list item #1
+    # 2. This is list item #2
+    # 3. This is list item #3
+    #
+    #     """
+    # markdown = "This is a simple paragraph.\n"
+    simple_paragraph = "This is a simple paragraph.\nWith a second line\n"
+    block_type = block_to_block_type(simple_paragraph)
+    print(block_type)
+    result_parag = markdown_to_html_node(simple_paragraph)
+    print(result_parag)
+    print()
 
+    mult_paragraphs = """This is the first paragraph.
 
-         This is a paragraph of text.
-    It has some **bold** and *italic* words inside of it.
-      
+This is the second paragraph."""
+    block_type = block_to_block_type(mult_paragraphs)
+    print(block_type)
+    result_mult_parag = markdown_to_html_node(mult_paragraphs)
+    print(result_mult_parag)
+    print()
 
-* This is one list item
-* This is another list item    
-* This is yet another list item    
+    headings = """# Heading 1
+## Heading 2
+### Heading 3"""
+    block_type = block_to_block_type(mult_paragraphs)
+    print(block_type)
+    result_headings = markdown_to_html_node(headings)
+    print(result_headings)
+    print()
 
-1. This is list item #1 
-2. This is list item #2  
-3. This is list item #3    
-       
-    """
-    result = markdown_to_html_node(markdown)
-    print(result.to_html())
+    unordered_list = """- Item 1
+- Item 2
+  - Item 2.1
+  - Item 2.2"""
+    block_type = block_to_block_type(unordered_list)
+    print(block_type)
+    result_unordored_list = markdown_to_html_node(unordered_list)
+    print(result_unordored_list)
+    print()
+
+    ordered_list = """1. First
+2. Second
+ 3. Second.1
+ 4. Second.2"""
+    block_type = block_to_block_type(ordered_list)
+    print(block_type)
+    result_ordered_list = markdown_to_html_node(ordered_list)
+    print(result_ordered_list)
+    print()
+
+    mixed_list = """- Item 1
+ 1. Subitem 1
+ 2. Subitem 2
+- Item 2"""
+    block_type = block_to_block_type(mixed_list)
+    print(f"mixed list: {block_type}")
+    result_mixed_list = markdown_to_html_node(mixed_list)
+    print(result_mixed_list)
+    print()
+
+    blockquote = """> This is a quote"""
+    block_type = block_to_block_type(blockquote)
+    print(blockquote)
+    result_blockquote = markdown_to_html_node(blockquote)
+    print(result_blockquote)
+    print()
+
+    # code_block = "```py\n# comment\nnumber = 5\nprint(f'{number}')\n```"
+    code_block = """```py
+def hello_world():
+    print("Hello, world!")```"""
+    #     code_block = """
+    # ```
+    # number = 7
+    # ```"""
+    print(code_block)
+    block_type = block_to_block_type(code_block)
+    print(f"Block type = {block_type}")
+    result_code = markdown_to_html_node(code_block)
+    print(result_code)
+    print(f"Type of result = {type(result_code).__name__}")
+    print()
+
+    combined_block = """# Heading 1
+
+This is a paragraph.
+
+- Item 1
+- Item 2
+
+> This is a quote
+
+1. First item
+2. Second item"""
+    print(combined_block)
+    # block_type = block_to_block_type(combined_block)
+    # print(f"Block type = {block_type}")
+    blocks = markdown_to_text(combined_block)
+    print(blocks)
+    result_combined = markdown_to_html_node(combined_block)
+    print(result_combined)
+    print()
+
+    nested_code_block_in_list = """- Item 1
+ - Subitem with code:
+    ```
+    def nested_code():
+        pass
+    ```
+- Item 2"""
+    print(nested_code_block_in_list)
+    blocks = markdown_to_text(nested_code_block_in_list)
+    print(blocks)
+    print(len(blocks))
+    result_nested = markdown_to_html_node(nested_code_block_in_list)
+    print(result_nested)
+    print()
 
 
 def main():
@@ -438,16 +570,19 @@ def main():
     # play_with_split_nodes_link()
     # print()
     # play_with_text_to_textnodes()
+    # print()
     # play_with_markdown_to_text()
+    # print()
     # play_with_block_types()
+    # print()
     # play_with_code_block_to_html_node()
     # play_with_heading_block_to_html_node()
-    play_with_unordered_list_to_html_node()
-    play_with_ordered_list_to_html_node()
-    play_with_mixed_list_to_html_node()
+    # play_with_unordered_list_to_html_node()
+    # play_with_ordered_list_to_html_node()
+    # play_with_mixed_list_to_html_node()
     # play_with_quote_block_to_html_node()
     # play_with_paragraph_block_to_html_node()
-    # play_with_markdown_to_html_node()
+    play_with_markdown_to_html_node()
 
 
 main()
