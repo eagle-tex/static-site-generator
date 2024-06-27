@@ -2,6 +2,7 @@ from blocks import (
     list_to_html_node,
     markdown_to_html_node,
     paragraph_block_to_html_node,
+    parse_markdown,
     quote_block_to_html_node,
     block_to_block_type,
     code_block_to_html_node,
@@ -410,7 +411,7 @@ def play_with_quote_block_to_html_node():
     quote_block = ">quote line 1\n>quote line 2\n>quote line 3"
     block_type = block_to_block_type(quote_block)
     result = quote_block_to_html_node(quote_block, block_type)
-    print(result.to_html())
+    print(result)
 
 
 def play_with_paragraph_block_to_html_node():
@@ -505,7 +506,8 @@ This is the second paragraph."""
     # code_block = "```py\n# comment\nnumber = 5\nprint(f'{number}')\n```"
     code_block = """```py
 def hello_world():
-    print("Hello, world!")```"""
+    print("Hello, world!")
+    ```"""
     #     code_block = """
     # ```
     # number = 7
@@ -553,6 +555,127 @@ This is a paragraph.
     print(result_nested)
     print()
 
+    mixed_nested_lists = """1. Ordered item 1
+   - Unordered subitem 1
+   - Unordered subitem 2
+      1. Nested ordered subitem 1
+      2. Nested ordered subitem 2
+         - Nested unordered sub-subitem
+2. Ordered item 2"""
+    result_mixed_nested = parse_markdown(mixed_nested_lists)
+    print(result_mixed_nested)
+    print()
+
+    paragraph_and_list = """This is a leading paragraph.
+
+- List item 1
+  - Nested list item 1.1
+  - Nested list item 1.2
+
+This is a trailing paragraph."""
+    result_parag_and_list = markdown_to_html_node(paragraph_and_list)
+    print(result_parag_and_list)
+    print()
+
+    blockquote_and_list = """> This is a blockquote
+
+- List item"""
+    result_blockquote_and_list = markdown_to_html_node(blockquote_and_list)
+    print(result_blockquote_and_list)
+    print()
+
+    multiple_bloquotes = """> Quote 1
+
+> Quote 2"""
+    result_multiple_blockquotes = markdown_to_html_node(multiple_bloquotes)
+    print(result_multiple_blockquotes)
+    print()
+
+    mixed_parag_and_headings = """# Heading 1
+
+This is a paragraph under heading 1.
+
+## Heading 2
+
+This is a paragraph under heading 2."""
+    result_mixed_parag_and_headings = markdown_to_html_node(mixed_parag_and_headings)
+    print(result_mixed_parag_and_headings)
+    print()
+
+    multiple_nested_lists = """- Level 1
+  - Level 2
+    - Level 3
+- Level 1 again
+  - Level 2 again
+    - Level 3 again"""
+    result_multiple_nested_lists = markdown_to_html_node(multiple_nested_lists)
+    print(result_multiple_nested_lists)
+    print()
+
+
+def play_with_parse_markdown():
+    nested_code_block_in_list = """- Item 1
+ - Subitem with code:
+    ```
+    def nested_code():
+        a = 4
+        if 2+3 > a:
+            print('a is less')
+            print('you win')
+        else:
+            print('you lose')
+    ```
+- Item 2"""
+    print(nested_code_block_in_list)
+    # blocks = markdown_to_text(nested_code_block_in_list)
+    # print(blocks)
+    # print(len(blocks))
+    result_nested = parse_markdown(nested_code_block_in_list)
+    print(result_nested)
+    print()
+
+
+def just_a_test():
+    # simple_paragraph = "This is a simple paragraph.\nWith a second line\n"
+    # block_type = block_to_block_type(simple_paragraph)
+    # print(block_type)
+    # result_parag = markdown_to_html_node(simple_paragraph)
+    # print(result_parag)
+    # print()
+
+    # headings = """# Heading 1
+    # ## Heading 2
+    # ### Heading 3"""
+    #     result_headings = markdown_to_html_node(headings)
+    #     print(result_headings)
+    #     print()
+    #
+    #     nested_code_block_in_list = """- Item 1
+    #  - Subitem with code:
+    #     ```
+    #     def nested_code():
+    #         pass
+    #     ```
+    # - Item 2"""
+    #     print(nested_code_block_in_list)
+    #     # blocks = markdown_to_text(nested_code_block_in_list)
+    #     # print(blocks)
+    #     # print(len(blocks))
+    #     result_nested = parse_markdown(nested_code_block_in_list)
+    #     print(result_nested)
+    #     print()
+
+    paragraph_and_list = """This is a leading paragraph.
+
+- List item 1
+  - Nested list item 1.1
+  - Nested list item 1.2
+
+This is a trailing paragraph."""
+    result_parag_and_list = markdown_to_html_node(paragraph_and_list)
+    print(result_parag_and_list)
+    print()
+
 
 def main():
     # print("running main.py")
@@ -583,6 +706,8 @@ def main():
     # play_with_quote_block_to_html_node()
     # play_with_paragraph_block_to_html_node()
     play_with_markdown_to_html_node()
+    # just_a_test()
+    # play_with_parse_markdown()
 
 
 main()
