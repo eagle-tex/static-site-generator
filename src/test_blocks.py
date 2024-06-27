@@ -189,7 +189,8 @@ This is the second paragraph."""
     def test_code_block(self):
         markdown = """```python3
 def hello_world():
-    print("Hello, world!")```"""
+    print("Hello, world!")
+    ```"""
         result = markdown_to_html_node(markdown)
         flat_result = flatten_html_element(result.to_html())
         expected = '<div><pre><code>def hello_world():print("Hello, world!")</code></pre></div>'
@@ -208,7 +209,7 @@ This is a paragraph.
 1. First item
 2. Second item"""
         result = markdown_to_html_node(markdown)
-        flat_result = flatten_html_element(result)
+        flat_result = flatten_html_element(result.to_html())
         expected = "<div><h1>Heading 1</h1><p>This is a paragraph.</p><ul><li>Item 1</li><li>Item 2</li></ul><blockquote><p>This is a quote</p></blockquote><ol><li>First item</li><li>Second item</li></ol></div>"
         self.assertEqual(flat_result, expected)
 
@@ -221,6 +222,75 @@ This is a paragraph.
     ```
 - Item 2"""
         result = markdown_to_html_node(markdown)
-        flat_result = flatten_html_element(result)
-        expected = ""
+        flat_result = flatten_html_element(result.to_html())
+        expected = "<div><ul><li>Item 1<ul><li>Subitem with code:<pre><code>def nested_code():pass</code></pre></li></ul></li><li>Item 2</li></ul></div>"
+        self.assertEqual(flat_result, expected)
+
+    def test_mixed_nested_lists(self):
+        markdown = """1. Ordered item 1
+   - Unordered subitem 1
+   - Unordered subitem 2
+      1. Nested ordered subitem 1
+      2. Nested ordered subitem 2
+         - Nested unordered sub-subitem
+2. Ordered item 2"""
+        result = markdown_to_html_node(markdown)
+        flat_result = flatten_html_element(result.to_html())
+        expected = "<div><ol><li>Ordered item 1<ul><li>Unordered subitem 1</li><li>Unordered subitem 2<ol><li>Nested ordered subitem 1</li><li>Nested ordered subitem 2<ul><li>Nested unordered sub-subitem</li></ul></li></ol></li></ul></li><li>Ordered item 2</li></ol></div>"
+        self.assertEqual(flat_result, expected)
+
+    def test_paragraph_and_list(self):
+        markdown = """This is a leading paragraph.
+
+- List item 1
+  - Nested list item 1.1
+  - Nested list item 1.2
+
+This is a trailing paragraph."""
+        result = markdown_to_html_node(markdown)
+        flat_result = flatten_html_element(result.to_html())
+        expected = "<div><p>This is a leading paragraph.</p><ul><li>List item 1<ul><li>Nested list item 1.1</li><li>Nested list item 1.2</li></ul></li></ul><p>This is a trailing paragraph.</p></div>"
+        self.assertEqual(flat_result, expected)
+
+    def test_blockquote_and_list(self):
+        markdown = """> This is a blockquote
+
+- List item"""
+        result = markdown_to_html_node(markdown)
+        flat_result = flatten_html_element(result.to_html())
+        expected = "<div><blockquote><p>This is a blockquote</p></blockquote><ul><li>List item</li></ul></div>"
+        self.assertEqual(flat_result, expected)
+
+    def test_multiple_blockquotes(self):
+        markdown = """> Quote 1
+
+> Quote 2"""
+        result = markdown_to_html_node(markdown)
+        flat_result = flatten_html_element(result.to_html())
+        expected = "<div><blockquote><p>Quote 1</p></blockquote><blockquote><p>Quote 2</p></blockquote></div>"
+        self.assertEqual(flat_result, expected)
+
+    def test_mixed_paragraphs_and_headings(self):
+        markdown = """# Heading 1
+
+This is a paragraph under heading 1.
+
+## Heading 2
+
+This is a paragraph under heading 2."""
+        result = markdown_to_html_node(markdown)
+        flat_result = flatten_html_element(result.to_html())
+        expected = "<div><h1>Heading 1</h1><p>This is a paragraph under heading 1.</p><h2>Heading 2</h2><p>This is a paragraph under heading 2.</p></div>"
+        self.assertEqual(flat_result, expected)
+
+    def test_multiple_nested_lists(self):
+        markdown = """- Level 1
+  - Level 2
+    - Level 3
+- Level 1 again
+  - Level 2 again
+    - Level 3 again"""
+        result = markdown_to_html_node(markdown)
+        flat_result = flatten_html_element(result.to_html())
+        expected = "<div><ul><li>Level 1<ul><li>Level 2<ul><li>Level 3</li></ul></li></ul></li><li>Level 1 again<ul><li>Level 2 again<ul><li>Level 3 again</li></ul></li></ul></li></ul></div>"
         self.assertEqual(flat_result, expected)
