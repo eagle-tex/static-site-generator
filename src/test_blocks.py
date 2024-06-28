@@ -98,6 +98,7 @@ class TestBlockToBlock(unittest.TestCase):
 
 
 def concatenate_result(lines):
+    # TODO: add docstring
     str = ""
     for line in lines:
         str += line.strip()
@@ -150,7 +151,7 @@ This is the second paragraph."""
         expected = "<div><ol><li>First</li><li>Second<ol><li>Second.1</li><li>Second.2</li></ol></li></ol></div>"
         self.assertEqual(flat_result, expected)
 
-    def test_mixed_list_one(self):
+    def test_mixed_lists_one(self):
         markdown = """- Item 1
  1. Subitem 1
  2. Subitem 2
@@ -160,7 +161,7 @@ This is the second paragraph."""
         expected = "<div><ul><li>Item 1<ol><li>Subitem 1</li><li>Subitem 2</li></ol></li><li>Item 2</li></ul></div>"
         self.assertEqual(flat_result, expected)
 
-    def test_mixed_list_two(self):
+    def test_mixed_lists_two(self):
         markdown = """1. item 1 ordered
 2. item 2 ordered
   + item 2.1 unordered

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 import re
 
 from leafnode import LeafNode
@@ -75,7 +75,48 @@ def markdown_to_text(markdown: str) -> List[str]:
     return blocks
 
 
+def is_heading(line: str) -> bool:
+    """
+    Checks if a line (string) is a Markdown heading
+
+    Argument
+    --------
+    line: str
+        a Markdown text (one line)
+
+    Returns
+    -------
+    True if the line is a Markdown heading
+    False otherwise
+    """
+    left_stripped_line = line.lstrip("#")
+    if left_stripped_line.rstrip() != line.rstrip():
+        if left_stripped_line[0] == " " and left_stripped_line[1] != " ":
+            return True
+    return False
+
+
 def block_to_block_type(block: str) -> str:
+    """
+    Gets a block (a set of non-empty lines) and returns
+    the corresponding block type
+
+    Argument
+    --------
+    block: str
+        a set (1 or more) of non-empty lines
+
+    Returns
+    -------
+    The block type: str
+    The available/possible block types are:
+        - code
+        - heading
+        - ordered_list
+        - paragraph
+        - quote
+        - unordered_list
+    """
     block_type_paragraph = "paragraph"
     block_type_heading = "heading"
     block_type_code = "code"
@@ -88,13 +129,6 @@ def block_to_block_type(block: str) -> str:
 
     # break the block into lines
     lines = block.split("\n")
-
-    def is_heading(line):
-        left_stripped_line = line.lstrip("#")
-        if left_stripped_line.rstrip() != line.rstrip():
-            if left_stripped_line[0] == " " and left_stripped_line[1] != " ":
-                return True
-        return False
 
     new_lines = list(filter(is_heading, lines))
     if len(new_lines) == len(lines):
@@ -144,7 +178,39 @@ def block_to_block_type(block: str) -> str:
     return block_type_paragraph
 
 
-def code_block_to_html_node(block: str, type: str):
+def code_block_to_html_node(block: str, type: str) -> ParentNode:
+    """
+    Transforms a Mardown code block into an HTML node
+
+    Argument
+    --------
+    1. block (str): a multiline string
+    2. [type (str)]: optional. can only take value "code", which it defaults to if omitted
+
+
+    Returns
+    -------
+    A HTML element of type `ParentNode`
+        A div element as root node, with a <pre> element inside
+        and a <code> element inside the <pre> element
+
+    Raises
+    ------
+    ValueError: when `type` is not `"code"`
+
+    Example
+    -------
+    <div>
+        <pre>
+            <code>
+            code line 1
+            code line 2
+            ...
+            code line n
+            </code>
+        </pre>
+    </div>
+    """
     nodes = []
     if type == "code":
         block_lines = block.split("\n")
@@ -167,6 +233,33 @@ def code_block_to_html_node(block: str, type: str):
 
 
 def heading_block_to_html_node(block: str, type: str):
+    """
+    Transforms a Mardown `heading` block into an HTML node
+
+    Argument
+    --------
+    1. block (str): a multiline string
+    2. [type (str)]: optional. can only take value `"heading"`, which it defaults to if omitted
+
+
+    Returns
+    -------
+    A HTML element of type `ParentNode`
+        A div element as root node, with one or multiplie heading element inside
+        Heading elements are h1, h2 ... to h6
+
+    Raises
+    ------
+    ValueError: when `type` is not `"heading"`
+
+    Example
+    -------
+    <div>
+        <h1>Heading level 1</h1>
+        <h2>Heading level 2</h2>
+        ...
+    </div>
+    """
     nodes = []
     if type == "heading":
         # split block into lines
@@ -188,7 +281,24 @@ def heading_block_to_html_node(block: str, type: str):
         raise ValueError(f'Argument <type> different from "heading"')
 
 
-def print_stack(stack):
+def stack_repr(
+    stack: List[tuple[LeafNode | ParentNode, int]]
+) -> List[Tuple[str, str, int]]:
+    """
+    Helper function for debugging
+    Prints a stack of tuples
+
+    Argument
+    --------
+    stack: a list of `(Tuple[LeafNode | ParentNode, int])` elements
+
+    Returns
+    -------
+    An array of `(element_tag: str, element_name: str, leading_spaces: int)`
+            where:
+                - element is of type `LeafNode` or `ParentNode`
+                - leading_spaces is the number of spaces (i.e the nesting level)
+    """
     result = []
     for el in stack:
         result.append((el[0].tag, type(el[0]).__name__, el[1]))
@@ -196,6 +306,14 @@ def print_stack(stack):
 
 
 def clean_stack(stack, leading_spaces):
+    """
+    Helper function
+    Removes all elements up to but not including the direct parent of the current element in a list
+    i.e.
+    Removes `LeafNode` elements from stack
+        - `LeafNode` elements which leading_spaces are >= to the current `leading_spaces` value
+        - List `ParentNode` (`ul` or `ol`) which leading_spaces are > to the current `leading_spaces` value
+    """
     while (
         stack
         and (stack[-1][1] >= leading_spaces and not stack[-1][0].tag in ["ul", "ol"])
@@ -205,6 +323,7 @@ def clean_stack(stack, leading_spaces):
 
 
 def add_to_parent(node, stack, leading_spaces: int):
+    # TODO: add docstring
     parent_node = stack[-1][0]
     if isinstance(parent_node, ParentNode) and isinstance(parent_node.children, list):
         parent_node.children.append(node)
@@ -212,6 +331,7 @@ def add_to_parent(node, stack, leading_spaces: int):
 
 
 def list_to_html_node(block: str, type: str):
+    # TODO: add docstring
     if type not in [block_type_ordered_list, block_type_unordered_list]:
         raise ValueError(f'Argument <type> is not "ordered_list" or "unordered_list"')
 
@@ -277,6 +397,7 @@ def list_to_html_node(block: str, type: str):
 
 
 def ordered_list_to_html_node(block: str, type: str = "ordered_list"):
+    # TODO: add docstring
     li_nodes = []
     if type != "ordered_list":
         raise ValueError(f'Argument <type> is not "ordered_list"')
@@ -290,6 +411,7 @@ def ordered_list_to_html_node(block: str, type: str = "ordered_list"):
 
 
 def unordered_list_to_html_node(block: str, type: str = "unordered_list"):
+    # TODO: add docstring
     li_nodes = []
     if type == "unordered_list":
         lines = block.split("\n")
@@ -303,6 +425,7 @@ def unordered_list_to_html_node(block: str, type: str = "unordered_list"):
 
 
 def paragraph_block_to_html_node(content: str, type: str = "paragraph"):
+    # TODO: add docstring
     if type != "paragraph":
         raise ValueError(f'Argument <type> is not "paragraph"')
 
@@ -311,6 +434,7 @@ def paragraph_block_to_html_node(content: str, type: str = "paragraph"):
 
 
 def quote_block_to_html_node(content: str, type: str = "quote"):
+    # TODO: add docstring
     nodes = []
     if type != "quote":
         raise ValueError(f'Argument <type> is not "quote"')
@@ -324,6 +448,7 @@ def quote_block_to_html_node(content: str, type: str = "quote"):
 
 
 def parse_markdown(markdown):
+    # TODO: add docstring
     lines = markdown.split("\n")
     root = ParentNode("div", [])
     stack = [(root, -1)]
@@ -434,6 +559,7 @@ def parse_markdown(markdown):
 
 
 def markdown_to_html_node(markdown: str):
+    # TODO: add docstring
     children = []
     raw_text_blocks = markdown_to_text(markdown)
 

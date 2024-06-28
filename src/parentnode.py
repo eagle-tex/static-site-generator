@@ -4,6 +4,7 @@ from leafnode import LeafNode
 
 
 class ParentNode(HTMLNode):
+    # TODO: add docstring
     def __init__(
         self, tag: str, children: List[HTMLNode], props: dict[str, str] | None = None
     ):
@@ -40,4 +41,5 @@ class ParentNode(HTMLNode):
                 )
 
         html += f"</{self.tag}>"
+
         return html
