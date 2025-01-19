@@ -1,3 +1,5 @@
+[TOC]
+
 
 
 # Purpose
@@ -8,28 +10,94 @@
 
 # Blocks
 
-Refer to each function's docstring for more details.
-> I didn't copy them here to save time, but it could/should be done if needed.
+## Block types
+
+We assume there are 6 types of markdown blocks, which will be the ones supported.
+
+- "code"
+- "heading"
+- "ordered_list"
+- "paragraph"
+- "quote"
+- "unordered_list"
+
+
 
 ## API functions
 
-### `markdown_to_text`
+Refer to each function's docstring for more details.
+
+I didn't copy them here to save time, but it could/should be done if needed.
+
+
+
+## 
+
+### `markdown_to_blocks(markdown)`
+
+Takes a raw Markdown string (representing a full document) as input and returns a list of "blocks" strings.
+
+Splits the input into distinct blocks and strip any leading or trailing whitespace from each block. Any "empty" block is removed (in case of excessive newlines).
+
+The following example document should be split into **3** blocks.
+
+```markdown
+This is **bolded** paragraph
+
+This is another paragraph with *italic* text and `code` here
+This is the same paragraph on a new line
+
+* This is a list
+* with items
+```
+
+
 
 ### ``
 ### ``
 ### ``
 ### ``
 ### `is_heading`
-### `block_to_block_type`
+### `block_to_block_type(block)`
+
+Takes a single block of Markdown text as input and returns the type of block it is.
+
 ### `code_block_to_html_node`
 ### `heading_block_to_html_node`
 ### `list_to_html_node`
 ### `ordered_list_to_html_node`
 ### `unordered_list_to_html_node`
-### `paragraph_node_to_html_node`
-### `quote_block_to_html_node`
+### `paragraph_node_to_html_node(block, "paragraph")`
+
+Convert a Markdown paragraph block into a `ParentNode`
+
+```html
+<p>
+  This is a paragraph
+  Spanning on two lines.
+</p>
+```
+
+
+
+### `quote_block_to_html_node(block, "quote")`
+
+Convert a Markdown quote block into a **blockquote** `ParentNode`
+
+```html
+<blockquote>
+    <p>Quote 1</p>
+    <p>Quote 2</p>
+</blockquote>
+
+```
+
+
+
 ### `parse_markdown`
-### `markdown_to_html_node`
+### `markdown_to_html_node(markdown)`
+
+Uses the other functions to convert a full Markdown document into an `HTMLNode`, specifically a `ParentNode`. The top level element is a `<div>` where each child is a block of the document.
 
 
 
@@ -43,7 +111,7 @@ Refer to each function's docstring for more details.
 
 ## Tests
 
-### Class `TestMarkdownToText`: Test `markdown_to_text` function
+### Class `TestMarkdownToBlocks`: Test `markdown_to_blocks` function
 
 #### `test_empty_string`
 
