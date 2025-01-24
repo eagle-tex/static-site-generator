@@ -7,7 +7,7 @@ from blocks import (
     block_to_block_type,
     code_block_to_html_node,
     heading_block_to_html_node,
-    markdown_to_text,
+    markdown_to_blocks,
 )
 from leafnode import LeafNode
 from parentnode import ParentNode
@@ -280,11 +280,11 @@ def play_with_markdown_to_text():
 * This is third list item    
        
     """
-    print(f"{len(markdown_to_text(markdown))} block(s) found")
+    print(f"{len(markdown_to_blocks(markdown))} block(s) found")
     print("-----------------")
-    print(markdown_to_text(markdown))
+    print(markdown_to_blocks(markdown))
     print("-----------------")
-    for el in markdown_to_text(markdown):
+    for el in markdown_to_blocks(markdown):
         print(f'"{el}"')
         print()
 
@@ -534,7 +534,7 @@ This is a paragraph.
     print(combined_block)
     # block_type = block_to_block_type(combined_block)
     # print(f"Block type = {block_type}")
-    blocks = markdown_to_text(combined_block)
+    blocks = markdown_to_blocks(combined_block)
     print(blocks)
     result_combined = markdown_to_html_node(combined_block)
     print(result_combined)
@@ -548,7 +548,7 @@ This is a paragraph.
     ```
 - Item 2"""
     print(nested_code_block_in_list)
-    blocks = markdown_to_text(nested_code_block_in_list)
+    blocks = markdown_to_blocks(nested_code_block_in_list)
     print(blocks)
     print(len(blocks))
     result_nested = markdown_to_html_node(nested_code_block_in_list)

@@ -12,7 +12,7 @@ block_type_quote = "quote"
 block_type_unordered_list = "unordered_list"
 
 
-def markdown_to_text(markdown: str) -> List[str]:
+def markdown_to_blocks(markdown: str) -> List[str]:
     """
     Separates a block of markdown text into blocks of different types
     Blocks are a group of lines without any empty line(s)
@@ -561,7 +561,7 @@ def parse_markdown(markdown):
 def markdown_to_html_node(markdown: str):
     # TODO: add docstring
     children = []
-    raw_text_blocks = markdown_to_text(markdown)
+    raw_text_blocks = markdown_to_blocks(markdown)
 
     for curr_block in raw_text_blocks:
         current_node = parse_markdown(curr_block)

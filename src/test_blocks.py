@@ -1,16 +1,16 @@
 import unittest
 
-from blocks import block_to_block_type, markdown_to_html_node, markdown_to_text
+from blocks import block_to_block_type, markdown_to_html_node, markdown_to_blocks
 from htmlnode import flatten_html_element
 
 
-class TestMarkdownToText(unittest.TestCase):
+class TestMarkdownToBlocks(unittest.TestCase):
     def test_empty_string(self):
-        result = markdown_to_text("")
+        result = markdown_to_blocks("")
         self.assertEqual(result, [])
 
     def test_string_with_only_spaces(self):
-        result = markdown_to_text("     ")
+        result = markdown_to_blocks("     ")
         self.assertEqual(result, [])
 
     def test_simple_markdown(self):
@@ -27,7 +27,7 @@ This is a paragraph of text. It has some **bold** and *italic* words inside of i
             "This is a paragraph of text. It has some **bold** and *italic* words inside of it.",
             f"* This is a list item\n* This is another list item",
         ]
-        result = markdown_to_text(markdown)
+        result = markdown_to_blocks(markdown)
         self.assertEqual(result, expected)
         self.assertEqual(len(result), 3)
 
@@ -45,7 +45,7 @@ This is a paragraph of text. It has some **bold** and *italic* words inside of i
     * This is second list item    
         
         """
-        result = markdown_to_text(markdown)
+        result = markdown_to_blocks(markdown)
         expected = [
             "# This is a heading\n## This is a sub-heading",
             "This is a paragraph of text.\nIt has some **bold** and *italic* words inside of it.",
