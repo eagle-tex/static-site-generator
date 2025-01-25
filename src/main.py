@@ -683,25 +683,24 @@ This is a trailing paragraph."""
     print()
 
 
-def list_files(path="."):
-    for entry in os.listdir(path):
-        full_path = os.path.join(path, entry)
-        # full_path = path
-        print(
-            f"entry: {entry} - is_dir: {os.path.isdir(full_path)} - is_file: {os.path.isfile(full_path)}"
-        )
-        if os.path.isdir(full_path):
-            print(f"\tFOLDER: {full_path}")
-            list_files(full_path)
-        else:
-            print(f"\tFILE: {full_path}")
+# def list_files(path="."):
+#     for entry in os.listdir(path):
+#         full_path = os.path.join(path, entry)
+#         # full_path = path
+#         print(
+#             f"entry: {entry} - is_dir: {os.path.isdir(full_path)} - is_file: {os.path.isfile(full_path)}"
+#         )
+#         if os.path.isdir(full_path):
+#             print(f"\tFOLDER: {full_path}")
+#             list_files(full_path)
+#         else:
+#             print(f"\tFILE: {full_path}")
 
 
 def check_src_dir(src: str):
     full_src_path = os.path.join(".", src)
     # Check if the src path exists
     if not os.path.exists(full_src_path):
-        # print(f"source path '{full_src_path}' does not exist - EXIT")
         raise Exception(f"source path '{full_src_path}' does not exist")
 
     # Check if the src is a directory
@@ -713,16 +712,10 @@ def check_dest_dir(dest: str):
     full_dest_path = os.path.join(".", dest)
     # if dest path exists and is a directory
     if os.path.exists(full_dest_path) and os.path.isdir(full_dest_path):
-        # print(f"path: {dest}")
-        # print(f"full_dest_path: {full_dest_path}")
-        # print(f"dest path '{full_dest_path}' already exists - DELETING IT")
-
         # delete the existing dest folder
         shutil.rmtree(full_dest_path)
 
     # create the dest folder
-    # print(f"dest path '{full_dest_path}' doesn't exist - CREATE IT")
-    # print(full_dest_path)
     os.mkdir(full_dest_path)
 
 
@@ -734,8 +727,6 @@ def copy_files(src: str, dest: str):
 
     for entry in os.listdir(src_dir_path):
         src_item = os.path.join(src_dir_path, entry)
-        # print(f"NEW ENTRY: {entry}")
-        # print(f"NEW ENTRY: {src_item}")
         if os.path.isfile(src_item):
             src_file_path = src_item
             dest_file_path = src_file_path.replace(src, dest)
@@ -746,7 +737,6 @@ def copy_files(src: str, dest: str):
             dest_dir = src_item.replace(src, dest)
             print(f"Copy directory: '{src_dir}' => '{dest_dir}'")
             os.makedirs(dest_dir, exist_ok=True)
-            # print("\tRecursive call of copy_files")
             copy_files(src_dir, dest_dir)
 
 
@@ -792,7 +782,7 @@ def main():
     # print()
     # list_files("./static")
     # print()
-    copy_files("static", "toto")
+    copy_files("static", "public")
     # copy_files("static", "public")
 
 
