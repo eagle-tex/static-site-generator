@@ -1,9 +1,8 @@
 import os
-from os.path import isfile
 from typing import List
 
 from blocks import markdown_to_html_node
-from copy_static import check_dest_dir, check_if_file_exists, validate_src_dir
+from copy_static import check_if_file_exists, validate_src_dir
 
 
 def extract_title(markdown: str) -> str:
