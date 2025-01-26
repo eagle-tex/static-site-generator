@@ -52,16 +52,24 @@ This is the same paragraph on a new line
 ```
 
 
+Refer to each function's docstring for more details.
+> I didn't copy them here to save time, but it could/should be done if needed.
+
+## API functions
+
+### `markdown_to_text`
 
 ### ``
 ### ``
 ### ``
 ### ``
 ### `is_heading`
+
 ### `block_to_block_type(block)`
 
 Takes a single block of Markdown text as input and returns the type of block it is.
 
+### `block_to_block_type`
 ### `code_block_to_html_node`
 ### `heading_block_to_html_node`
 ### `list_to_html_node`
@@ -99,6 +107,11 @@ Convert a Markdown quote block into a **blockquote** `ParentNode`
 
 Uses the other functions to convert a full Markdown document into an `HTMLNode`, specifically a `ParentNode`. The top level element is a `<div>` where each child is a block of the document.
 
+### `paragraph_node_to_html_node`
+### `quote_block_to_html_node`
+### `parse_markdown`
+### `markdown_to_html_node`
+
 
 
 ## Helper functions
@@ -112,6 +125,7 @@ Uses the other functions to convert a full Markdown document into an `HTMLNode`,
 ## Tests
 
 ### Class `TestMarkdownToBlocks`: Test `markdown_to_blocks` function
+### Class `TestMarkdownToText`: Test `markdown_to_text` function
 
 #### `test_empty_string`
 
