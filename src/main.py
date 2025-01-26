@@ -7,8 +7,9 @@ from blocks import (
     block_to_block_type,
     code_block_to_html_node,
     heading_block_to_html_node,
-    markdown_to_text,
+    markdown_to_blocks,
 )
+from generate_page import generate_page, generate_pages_recursive
 from leafnode import LeafNode
 from parentnode import ParentNode
 from textnode import TextNode
@@ -21,6 +22,8 @@ from inline import (
     text_to_textnodes,
 )
 from htmlnode import HTMLNode
+
+from copy_static import copy_files
 
 
 def play_with_text_nodes():
@@ -280,11 +283,11 @@ def play_with_markdown_to_text():
 * This is third list item    
        
     """
-    print(f"{len(markdown_to_text(markdown))} block(s) found")
+    print(f"{len(markdown_to_blocks(markdown))} block(s) found")
     print("-----------------")
-    print(markdown_to_text(markdown))
+    print(markdown_to_blocks(markdown))
     print("-----------------")
-    for el in markdown_to_text(markdown):
+    for el in markdown_to_blocks(markdown):
         print(f'"{el}"')
         print()
 
@@ -534,7 +537,7 @@ This is a paragraph.
     print(combined_block)
     # block_type = block_to_block_type(combined_block)
     # print(f"Block type = {block_type}")
-    blocks = markdown_to_text(combined_block)
+    blocks = markdown_to_blocks(combined_block)
     print(blocks)
     result_combined = markdown_to_html_node(combined_block)
     print(result_combined)
@@ -548,7 +551,7 @@ This is a paragraph.
     ```
 - Item 2"""
     print(nested_code_block_in_list)
-    blocks = markdown_to_text(nested_code_block_in_list)
+    blocks = markdown_to_blocks(nested_code_block_in_list)
     print(blocks)
     print(len(blocks))
     result_nested = markdown_to_html_node(nested_code_block_in_list)
@@ -677,6 +680,20 @@ This is a trailing paragraph."""
     print()
 
 
+# def list_files(path="."):
+#     for entry in os.listdir(path):
+#         full_path = os.path.join(path, entry)
+#         # full_path = path
+#         print(
+#             f"entry: {entry} - is_dir: {os.path.isdir(full_path)} - is_file: {os.path.isfile(full_path)}"
+#         )
+#         if os.path.isdir(full_path):
+#             print(f"\tFOLDER: {full_path}")
+#             list_files(full_path)
+#         else:
+#             print(f"\tFILE: {full_path}")
+
+
 def main():
     # print("running main.py")
     # play_with_text_nodes()
@@ -705,9 +722,24 @@ def main():
     # play_with_mixed_list_to_html_node()
     # play_with_quote_block_to_html_node()
     # play_with_paragraph_block_to_html_node()
-    play_with_markdown_to_html_node()
+    ## play_with_markdown_to_html_node()
     # just_a_test()
     # play_with_parse_markdown()
+
+    # ROOT_DIR = os.path.abspath(os.curdir)
+    # print(f"ROOT_DIR = {ROOT_DIR}")
+    # STATIC_DIR = os.path.join(ROOT_DIR, "static")
+    # print(f"STATIC_DIR = {STATIC_DIR}")
+    # for file in os.listdir(STATIC_DIR):
+    #     print(file)
+
+    # print()
+    # list_files("./static")
+    # print()
+    copy_files("static", "public")
+    # generate_page("content/index.md", "template.html", "public/index.html")
+    generate_pages_recursive("content/", "template.html", "public/")
+    # copy_files("static", "public")
 
 
 main()

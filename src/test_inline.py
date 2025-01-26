@@ -330,6 +330,17 @@ class TestTextToTextNodes(unittest.TestCase):
         self.assertEqual(len(result), 10)
         self.assertEqual(result, expected)
 
+    def test_bold_text(self):
+        text = "Hello **world**!"
+        nodes = text_to_textnodes(text)
+        self.assertEqual(len(nodes), 3)
+        self.assertEqual(nodes[0].text, "Hello ")
+        self.assertEqual(nodes[0].text_type, "text")
+        self.assertEqual(nodes[1].text, "world")
+        self.assertEqual(nodes[1].text_type, "bold")
+        self.assertEqual(nodes[2].text, "!")
+        self.assertEqual(nodes[2].text_type, "text")
+
 
 if __name__ == "__main__":
     unittest.main()
