@@ -3,7 +3,7 @@ import shutil
 
 
 # from os.path import isdir
-def check_src_dir(src: str):
+def validate_src_dir(src: str):
     full_src_path = os.path.join(".", src)
     # Check if the src path exists
     if not os.path.exists(full_src_path):
@@ -26,7 +26,7 @@ def check_dest_dir(dest: str):
 
 
 def copy_files(src: str, dest: str):
-    check_src_dir(src)
+    validate_src_dir(src)
     check_dest_dir(dest)
 
     src_dir_path = os.path.join(".", src)
@@ -40,7 +40,7 @@ def copy_files(src: str, dest: str):
             shutil.copy(src_file_path, dest_file_path)
         else:
             src_dir = src_item
-            dest_dir = src_item.replace(src, dest)
+            dest_dir = src_dir.replace(src, dest)
             print(f"Copy directory: '{src_dir}' => '{dest_dir}'")
             os.makedirs(dest_dir, exist_ok=True)
             copy_files(src_dir, dest_dir)
