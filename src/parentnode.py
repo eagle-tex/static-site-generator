@@ -26,6 +26,23 @@ class ParentNode(HTMLNode):
             raise ValueError("At least one child is required for a ParentNode")
 
         props_value = self.props_to_html()
+
+        # Special case for blockquotes - no newlines
+        if self.tag == "blockquote":
+            html = f"<{self.tag}{props_value}>"
+            for child in self.children:
+                if isinstance(child, (ParentNode, LeafNode)):
+                    html += child.to_html()
+                else:
+                    raise TypeError(
+                        f'Child node "<{child.tag}>" is of type HTMLNode, which is prohibited.\
+                                    Must be ParentNode or LeafNode'
+                    )
+
+            html += f"</{self.tag}>"
+            return html
+
+        # Normal case for other tags
         html = f"<{self.tag}{props_value}>\n"
 
         for child in self.children:

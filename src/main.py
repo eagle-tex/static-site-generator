@@ -9,6 +9,7 @@ from blocks import (
     heading_block_to_html_node,
     markdown_to_blocks,
 )
+from generate_page import generate_page
 from leafnode import LeafNode
 from parentnode import ParentNode
 from textnode import TextNode
@@ -736,6 +737,7 @@ def main():
     # list_files("./static")
     # print()
     copy_files("static", "public")
+    generate_page("content/index.md", "template.html", "public/index.html")
     # copy_files("static", "public")
 
 

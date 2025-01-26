@@ -1,6 +1,7 @@
 from typing import List, Tuple
 import re
 
+from inline import text_to_textnodes
 from leafnode import LeafNode
 from parentnode import ParentNode
 
@@ -360,7 +361,7 @@ def list_to_html_node(block: str, type: str):
 
         list_type = ""
         # Determine the list item type and tag
-        if content.startswith(("-", "*", "+")):
+        if content.startswith(("- ", "* ", "+ ")):
             # Unordered list item
             content = content[1:].lstrip()
             list_type = "ul"
@@ -370,10 +371,19 @@ def list_to_html_node(block: str, type: str):
             content = content.lstrip("0123456789.").lstrip(" ")
             list_type = "ol"
 
+        text_nodes = text_to_textnodes(content)
+        html_nodes = []
+        for text_node in text_nodes:
+            html_nodes.append(text_node.text_node_to_html_node())
+
         if element_has_children[i]:
-            item_node = ParentNode("li", [LeafNode(None, content)])
+            # Create a list node (<li>) that contains all the html nodes
+            item_node = ParentNode("li", html_nodes)
         else:
-            item_node = LeafNode("li", content)
+            html_str = ""
+            for node in html_nodes:
+                html_str += node.to_html()
+            item_node = LeafNode("li", html_str)
 
         while (
             stack
@@ -441,7 +451,7 @@ def quote_block_to_html_node(content: str, type: str = "quote"):
 
     lines = content.split("\n")
     for line in lines:
-        nodes.append(LeafNode("p", f'{line.lstrip("> ")}'))
+        nodes.append(LeafNode(None, f'{line.lstrip("> ")}'))
 
     parent_node = ParentNode("blockquote", nodes)
     return parent_node
@@ -507,9 +517,22 @@ def parse_markdown(markdown):
 
         if content.startswith(">"):
             blockquote_content = content[1:].strip()
+            # Convert the content to text nodes and process inline markdown
+            text_nodes = text_to_textnodes(blockquote_content)
+            html_nodes = []
+            for text_node in text_nodes:
+                html_nodes.append(text_node.text_node_to_html_node())
+
+            # Combine the html nodes into a single string
+            html_str = ""
+            for node in html_nodes:
+                html_str += node.to_html()
+
+            # Create the blockquote node with the processed content
             blockquote_node = ParentNode(
-                "blockquote", [LeafNode("p", blockquote_content)]
+                "blockquote", [LeafNode(None, html_str.strip())]
             )
+            # print("Debug - blockquote HTML:", blockquote_node.to_html())
             add_to_parent(blockquote_node, stack, leading_spaces)
 
         elif content.startswith("#"):
@@ -524,7 +547,7 @@ def parse_markdown(markdown):
         ):
             list_type = ""
             # Determine the list item type and tag
-            if content.startswith(("-", "*", "+")):
+            if content.startswith(("- ", "* ", "+ ")):
                 # Unordered list item
                 content = content[1:].lstrip()
                 list_type = "ul"
@@ -534,10 +557,19 @@ def parse_markdown(markdown):
                 content = content.lstrip("0123456789.").lstrip(" ")
                 list_type = "ol"
 
+            text_nodes = text_to_textnodes(content)
+            html_nodes = []
+            for text_node in text_nodes:
+                html_nodes.append(text_node.text_node_to_html_node())
+
             if element_has_children[i]:
-                item_node = ParentNode("li", [LeafNode(None, content)])
+                # Create a list node (<li>) that contains all the html nodes
+                item_node = ParentNode("li", html_nodes)
             else:
-                item_node = LeafNode("li", content)
+                html_str = ""
+                for node in html_nodes:
+                    html_str += node.to_html()
+                item_node = LeafNode("li", html_str)
 
             clean_stack(stack, leading_spaces)
 
@@ -551,7 +583,13 @@ def parse_markdown(markdown):
 
         else:
             if content:
-                paragraph_node = LeafNode("p", content)
+                # Process the content for inline elements
+                text_nodes = text_to_textnodes(content)
+                html_nodes = []
+                for tn in text_nodes:
+                    html_nodes.append(tn.text_node_to_html_node())
+                # Create a paragraph node that contains all the html nodes
+                paragraph_node = ParentNode("p", html_nodes)
                 clean_stack(stack, leading_spaces)
                 add_to_parent(paragraph_node, stack, leading_spaces)
 

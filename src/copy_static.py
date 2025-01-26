@@ -44,3 +44,9 @@ def copy_files(src: str, dest: str):
             print(f"Copy directory: '{src_dir}' => '{dest_dir}'")
             os.makedirs(dest_dir, exist_ok=True)
             copy_files(src_dir, dest_dir)
+
+
+def check_if_file_exists(file_path: str) -> bool:
+    if os.path.exists(file_path):
+        return True
+    raise Exception(f"The file {file_path} does not exist")

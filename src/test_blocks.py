@@ -295,3 +295,9 @@ This is a paragraph under heading 2."""
         flat_result = flatten_html_element(result.to_html())
         expected = "<div><ul><li>Level 1<ul><li>Level 2<ul><li>Level 3</li></ul></li></ul></li><li>Level 1 again<ul><li>Level 2 again<ul><li>Level 3 again</li></ul></li></ul></li></ul></div>"
         self.assertEqual(flat_result, expected)
+
+    def test_markdown_to_html_bold(self):
+        md = "**I like Tolkien**"
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertTrue("<b>I like Tolkien</b>" in html)
